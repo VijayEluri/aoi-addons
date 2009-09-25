@@ -1,0 +1,75 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+<!--  xml header for scripts & plugin manager --> 
+<script>
+	<name>Visible Wireframe</name>
+	<author>TroY</author>
+	<version>1.1</version>
+	<date>2008-12-07</date>
+	<description>
+Creates little tubes on the edges of an object - so simulating a visible, renderable wireframe mesh.
+
+Can also handle actors.
+
+See also: http://www.aoi-board.de/index.php?action=posts&fid=12&tid=349
+	</description>
+	<comments>
+	</comments>
+</script>
+*/
+
+// Thickness of one single tube
+double tubeThick = 0.01;
+
+// Source object - must be Tri- or PolyMesh
+String baseobject = "WFT";
+
+// --- END OF USER SETTINGS ---
+
+
+
+scene = script.getScene();
+target = scene.getObject(baseobject);
+
+if (target == null)
+{
+	return;
+}
+
+// Find out whether this is an actor
+Object3D tObj = target.getObject();
+if (tObj instanceof artofillusion.animation.Actor)
+{
+	// Extract the actual object
+	tObj = ((artofillusion.animation.Actor)tObj).getWrappedObject();
+}
+
+if (!(tObj instanceof FacetedMesh))
+{
+	print("Source object is no faceted mesh but: " + tObj.getClass());
+	print("Can't handle that.");
+	return;
+}
+
+FacetedMesh fmesh = (FacetedMesh)tObj;
+
+int numFaces = fmesh.getFaceCount();
+for (int i = 0; i < numFaces; i++)
+{
+	int numVert = fmesh.getFaceVertexCount(i);
+	for (int k = 0; k < numVert; k++)
+	{
+		int a = fmesh.getFaceVertexIndex(i, k);
+		int b = fmesh.getFaceVertexIndex(i, (k+1) % numVert);
+		v = new Vec3[] {fmesh.getVertexPositions()[a], fmesh.getVertexPositions()[b]};
+		t = new Tube(v, tubeThick, Mesh.NO_SMOOTHING, Tube.FLAT_ENDS);
+		script.addObject(t, new CoordinateSystem());
+	}
+}
+
+// Pushing myself to location/orientation of the target object
+Vec3 zdirObj = target.getCoords().getZDirection();
+Vec3 udirObj = target.getCoords().getUpDirection();
+Vec3 origObj = target.getCoords().getOrigin();
+script.getCoordinates().setOrientation(zdirObj, udirObj);
+script.getCoordinates().setOrigin(origObj);

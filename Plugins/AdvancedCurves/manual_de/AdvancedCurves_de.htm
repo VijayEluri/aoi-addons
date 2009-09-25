@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE>Advanced Curves Plugin</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="CREATED" CONTENT="20080803;17203110">
+	<META NAME="CHANGEDBY" CONTENT="Harald G&ouml;tz">
+	<META NAME="CHANGED" CONTENT="20080803;17242909">
+</HEAD>
+<BODY LANG="de-DE" DIR="LTR">
+<H1 ALIGN=CENTER>Advanced Curves v0.3</H1>
+
+<H1>Funktionen / Features</H1>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Einf&uuml;hrung eines neuen
+	Objektes /Objekttyp: <B>AdvCurves</B>. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Beibehaltung der (R&uuml;ckw&auml;rts-)
+	<B>Kompatibilit&auml;t</B> zu bestehenden Kurven - alle bestehenden
+	Kurven Werkzeug, wie Array, Tube, Lathe, Extrude k&ouml;nnen weiter
+	genutzt werden. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">AdvCurves werden mit einer nicht
+	gegl&auml;tteten Au&szlig;enlinie <B>outline dargestellt</B>: Also
+	gerade Linien von Punkt zu Punkt. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Gegl&auml;ttete Kurven werden
+	&ouml;fter unterteilt um ein wirklich glattes Aussehen zu bekommen. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">AdvCurves werden jetzt <B>vollst&auml;ndig</B>
+	in einem eigenen Editor erzeugt mit Hilfe des neuen <B>Extend Curve
+	Tool</B>. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Genaues Fangen der Gitterpunkte. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Editor Fenster: Ein
+	situationsabh&auml;ngiges Men&uuml; (<B>context menu) </B>enth&auml;lt
+	alle Funktionen des normalen Kurven Men&uuml;s. 
+	</P>
+	<LI><P>Ein <B>Pfeil</B> an einem Ende der Kurve zeigt deren <B>Richtung
+	</B>an - das ist wichtig beim Skinning (&uuml;berziehen) und beim
+	Extrudieren um den Anfang der Kurve zu bestimmen. 
+	</P>
+</UL>
+<H1>Arbeiten mit AdvCurves</H1>
+<H2>Erstellung</H2>
+<P>Nach der Auswahl des neuen Toolicons (<IMG SRC="gfx/CreateTool.png" NAME="Grafik1" ALIGN=BOTTOM WIDTH=32 HEIGHT=32 BORDER=0>),
+k&ouml;nnen Sie irgendwo in die Szene klicken und damit eine neue
+AdvCurve an diesem Punkt erstellen. Das ist einer der Unterschiede zu
+normalen Kurven, die komplett im Hauptfenster erstellt werden.
+Anstelle dessen wird eine &quot;<B>Nulll&auml;ngen</B>&quot; Kurve
+erstellt. Sie k&ouml;nnen dieses Objekt dann editieren mit einem
+Doppelklick auf das Objekt in der Objektliste, oder Rechtsklick -&gt;
+Objekt bearbeiten. Es wird das Editor Fenster der Kurve dadurch
+ge&ouml;ffnet.</P>
+<H2>Wie man eine Advanced Curve zeichnet</H2>
+<P>Nachdem Sie nun das Editor Fenster vor sich haben, sehen Sie die
+Kurve - oder ein leeres Fenster so es sich um eine neue und damit
+leere (Nulll&auml;ngen) Kurve handelt. Au&szlig;erdem sehen Sie ein
+neues Werkzeug unten in der Werkzeugleiste: 
+<IMG SRC="gfx/ExtendCurve.png" NAME="Grafik2" ALIGN=BOTTOM WIDTH=32 HEIGHT=32 BORDER=0></P>
+<P>Dieses neue Werkzeug erlaubt es neue Punkte (Vertices im AoI
+Jargon) <B>jederzeit</B> hinzuzuf&uuml;gen. Man braucht nun die Kurve
+nicht mehr zu unterteilen, um neue Punkte zu erschaffen. Mit AdvCurce
+w&auml;hlen Sie nur das Ende oder den Anfang der Kurve und klicken
+irgendwohin (sinnvollerweise dorthin wo Sie einen neuen Kurvenpunkt
+erschaffen wollen): An dieser Stelle wird ein neuer Punkt erschaffen,
+der sofort mit der Urspungskurve verbunden ist - also den Kurvenzug
+erg&auml;nzt / verl&auml;ngert.</P>
+<P>Da das bekannte Unterteilen der Kurvenpunkte (&quot;Subdivide
+Selection&quot;) einen Einfluss auf alle anderen Kurvenpunkte hat,
+erlaubt das Extend Curve Tool das auch Einf&uuml;gen neuer
+Kurvenpunkte an jeder beliebigen Stelle..Selektieren Sie einfach die
+beiden Punkte zwischen denen Sie einen Punkt erstellen wollen und
+klicken Sie auf eine beliebige Stelle (sinnvollerweise irgendwo
+zwischen den Punkten). Das f&uuml;gt einen Kurvenpunkt hinzu, ohne
+die anderen Punkte zu beeinflussen. Bitte beachten Sie das zwischen
+dem letzten und ersten Punkt einer Kurve kein Punkt gesetzt werden
+kann - auch wenn die Kurve geschlossen ist! (Das geht nur wenn die
+Kurve nur 2 Punkte insgesamt hat). Das Werkzeug wei&szlig; dann
+einfach nicht wo der Punkt addiert werden muss - vor dem ersten oder
+hinter dem letzten &nbsp;Punkt (was de facto dasselbe w&auml;re).
+Wenn Sie ihrer - wom&ouml;glich geschlossenen - Kurve zwischen Start
+und Endpunkt weitere hinzuf&uuml;gen wollen, tun Sie einfach so als
+w&auml;re die Kurve offen und selektieren nur einen Punkt und f&uuml;gen
+einen weiteren hinzu.&nbsp;</P>
+<P>Entfernungen werden in selbiger Art und Weise wie bei der
+Erstellung von Bones gehandhabt. Wenn Sie einen Punkt (Vertex) in der
+Top Ansicht erstellen, wird sein Y-Wert (in dem Fall die H&ouml;he)
+denselben Wert haben wie der vorhergehende Punkt.</P>
+<P>Der erste und letzte Punkt einer Kurve sind jeweils
+&quot;gehighlighted&quot; um eine bessere &Uuml;bersicht zu erhalten.</P>
+<H2>Anmerkungen zu Nulll&auml;ngen Kurven</H2>
+<P>Wenn eine neue AdvCurve zur Szene hinzugef&uuml;gt wird ist sie
+zun&auml;chst mal leer. Das bedeutet das dort einfach keine Punkte in
+der Kurve vorhanden sind.</P>
+<P>Seien Sie deswegen darauf vorbereitet das nicht alle anderen Tools
+und Plugins die L&auml;nge der Kurve analysieren - sie gehen vielmehr
+davon aus, das eine Kurve aus mindestens 2 Punkten besteht (denn
+ansonsten ist es eigentlich keine Kurve). Das kann dann zu einem
+&quot;Alarm&quot; f&uuml;hren wenn Sie ein Tools ausf&uuml;hren an
+einer Kurve mit weniger als 2 Punkten.</P>
+<P>Deshalb - wenn Sie ein Programmierer sind und ein neues Werkzeug
+planen das mit Kurven umgeht, sollten Sie immer die L&auml;nge einer
+Kurven pr&uuml;fen bevor Sie mit deren Punkten arbeiten.</P>
+<H2>Benutzen des Gitters (Raster/Grid)</H2>
+<P>Neue Punkte, die mit dem Extend Curve Tool erzeugt werden, werden
+automatisch - den aktuellen Einstellungen entsprechend - mit dem
+Gitter ausgerichtet. Auch die Kurve selbst wird bei der Erstellung am
+Gitter ausgerichtet.</P>
+<P>Wenn Sie nur einige Punkte der Kurve am Raster ausrichten m&ouml;chten,
+w&auml;hlen Sie diese aus und w&auml;hlen Kurve - &gt; Ausgew&auml;hlte
+Punkte am Raster ausrichten.</P>
+<H2>Konvertieren von und zu normalen Kurven</H2>
+<P>Bis jetzt besitzen Advanced Curves keine neuen Features - nur Ihr
+Editier- und Erstellungsmechanismus ist anders als bei herk&ouml;mmlichen
+Kurven. Das bedeutet das eine existierende Kurve in eine Advanced
+Kurve umgewandelt werden kann und umgekehrt <B>ohne</B> irgendwelche
+Informationen zu verlieren. W&auml;hlen Sie einfach das zu
+konvertierende Objekt aus und w&auml;hlen Sie &quot;Objekt&quot;
+-&gt; &quot;Kurventyp umwandeln (erweitert/normal)&quot;.</P>
+<P>Sie k&ouml;nnen auch Tubes in AdvCurves konvertieren. Bitte
+beachten Sie, das Sie dabei die Dickeninformation der Tube (R&ouml;hre)
+verlieren.</P>
+<H2>Benutzen von Scripten mit AdvCurves</H2>
+<P>F&uuml;r externe Scripte sieht eine AdvCurves wie eine normale
+Kurve aus, wenn es nicht &uuml;ber den Kurventyp Bescheid wei&szlig;
+- deshalb wird jedes dieser Scripte die Kurve automatisch in eine
+normale Kurve konvertieren - im Normalfall wird es jedenfalls
+arbeiten.</P>
+<H2>Warum wird ein Pfeil am Ende der Kurve angezeigt?</H2>
+<P>Wenn Sie einfache Objekte aus einer Kurve generieren (z.B. eine
+R&ouml;hre), m&uuml;ssen Sie nicht wissen, wo die Kurve anf&auml;ngt
+oder aufh&ouml;rt. Aber wenn Sie eine Vervielf&auml;ltigung (Array),
+eine Extrusion einer Kurve an einer anderen Kurve, Haut&uuml;berzug
+oder anders ausf&uuml;hren wollen, dann ist es sinnvoll zu wissen wo
+die Kurve anf&auml;ngt, oder ob alle Kurven eines Skinnings (&Uuml;berzug)
+&uuml;bereinstimmend ausgerichtet sind.</P>
+</BODY>
+</HTML>

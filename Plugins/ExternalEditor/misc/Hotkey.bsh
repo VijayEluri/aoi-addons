@@ -1,0 +1,5 @@
+ModellingTool plugin = (ModellingTool)PluginRegistry.getPluginObject("troy.external.ExternalEditorPlugin");
+if (plugin != null)
+	plugin.commandSelected(window);
+else
+	print("ExternalEditor plugin not found.");

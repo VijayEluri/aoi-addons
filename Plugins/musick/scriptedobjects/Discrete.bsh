@@ -1,0 +1,22 @@
+int count = 10;
+double size = 0.5;
+double height = 7.0;
+double ySpan = script.getParameter("amplitude");
+double freq = script.getParameter("freq");
+
+t = script.getTime();
+r = new Random(0);
+
+for (int x = 0; x < count; x++)
+{
+    for (int y = 0; y < count; y++)
+    {
+        Vec3 v = new Vec3();
+        Noise.calcVector(v, r.nextDouble() + t * freq * r.nextDouble(), 0, 0);
+
+        CoordinateSystem pos = new CoordinateSystem();
+        pos.setOrigin(new Vec3((double)x * size, v.x * ySpan, (double)y * size));
+        Cube obj = new Cube(size, height, size);
+        script.addObject(obj, pos);
+    }
+}

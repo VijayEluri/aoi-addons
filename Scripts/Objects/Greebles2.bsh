@@ -1,0 +1,294 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+<!--  xml header for scripts & plugin manager --> 
+<script>
+	<name>Greebles 2</name>
+	<author>TroY</author>
+	<version>2.3</version>
+	<date>2009-09-25</date>
+	<description>
+Creates mass-greebles on arbitrary meshes. You should have a look at
+the script itself to set its parameters.
+
+Can also handle actors.
+
+See also: http://www.aoi-board.de/index.php?action=posts&fid=12&tid=345
+	</description>
+	<comments>
+	</comments>
+</script>
+*/
+
+
+// Enter target object
+String target = "GreebleTarget";
+
+// Base parameters (X, Y, Z)
+double baseWidth  = 0.5;
+double baseHeight = 0.5;
+double baseDepth  = 0.5;
+
+// Randomness
+double randWidth  = 0.0;
+double randHeight = 0.0;
+double randDepth  = 0.0;
+
+// Randomize greebles every frame (1) or keep one random distribution (0)?
+int randomStyle = 0;
+
+// Pseudo-Random seed (integer) for "static randomness"
+int rSeed = 1;
+
+// Style: Where/how to add greebles?
+// 0 = "Greebles on faces"
+//         Accepts Tri- or PolyMeshes, produces "cleanly" aligned greebles
+// 1 = "Greebles on vertices"
+//         Accepts all kind of "Mesh", produces somehow "twirled" greebles
+//
+//     Be aware that you *must* use "Greebles on vertices" when
+//     distributing over a curve!
+int style = 0;
+
+// Smoothing.
+//  0.0 = Don't smooth.
+// >0.0 = Use this value as tolerance for smoothing (just like the value
+//        used in the rendering dialog). This uses whatever smoothing
+//        method is set on the object.
+//
+//        Be aware that smoothing inevitably converts the target object
+//        temporarily into a TriangleMesh! (Your object in the scene
+//        won't be affected, but the geometry of the temporary object
+//        may change (PolyMesh -> TriMesh).)
+//
+//        If your target object is a Curve, this value will be cast to
+//        an Integer and will be used as the number of subdivisions.
+//
+//        Don't use too small values for Meshes!
+double tolerance = 1.0;
+
+// --- End of user settings ---
+// -------------------------------------------------------------------
+
+
+// Get the objects and stuff ...
+Scene scene = script.getScene();
+ObjectInfo t_oi = scene.getObject(target);
+Random rGen = new Random(rSeed);
+
+if (t_oi == null)
+{
+	// No annoying message.
+	//print("Object not found.");
+	return;
+}
+
+// Find out whether this is an actor
+Object3D tObj = t_oi.getObject();
+if (tObj instanceof artofillusion.animation.Actor)
+{
+	// Extract the actual object
+	tObj = ((artofillusion.animation.Actor)tObj).getWrappedObject();
+}
+
+// Try to do smoothing
+if (tolerance > 0.0)
+{
+	Object3D newObj = null;
+
+	if (tObj instanceof Curve)
+	{
+		// Do subdivision at least once
+		int num = (int)tolerance;
+		if (num == 0)
+			num = 1;
+
+		// Now subdivide the object
+		newObj = tObj;
+		for (int i = 0; i < num; i++)
+			newObj = ((Curve)newObj).subdivideCurve();
+	}
+	else
+	{
+		newObj = tObj.convertToTriangleMesh(tolerance);
+	}
+
+	// Were we successful?
+	if (newObj != null)
+		tObj = newObj;
+}
+
+double getRandVal()
+{
+	if (randomStyle == 0)
+		return rGen.nextDouble();
+	else
+		return Math.random();	
+}
+
+// Creates greebles on the mesh's *faces*
+boolean faceGreebles(Object3D objIn)
+{
+	if (!(objIn instanceof FacetedMesh))
+	{
+		print("Face-aligned greebles requested, but this object is no faceted mesh.");
+		print("In fact, it's an instance of: " + objIn.getClass());
+		print("Can't handle that.");
+		return false;
+	}
+
+	FacetedMesh mesh = (FacetedMesh)objIn;
+
+	int numFaces = mesh.getFaceCount();
+	int numVertHere = 0;
+	Vec3[] verts = mesh.getVertexPositions();
+
+	for (int i = 0; i < numFaces; i++)
+	{
+		numVertHere = mesh.getFaceVertexCount(i);
+
+		Cube obj = new Cube(
+					baseWidth * (getRandVal() * randWidth + 1),
+					baseHeight * (getRandVal() * randHeight + 1),
+					baseDepth * (getRandVal() * randDepth + 1)
+					);
+
+		// Calc face center and use it as the center for our cube
+		Vec3 fcent = new Vec3();
+		for (int j = 0; j < numVertHere; j++)
+		{
+			int oneVert = mesh.getFaceVertexIndex(i, j);
+			fcent.add(verts[oneVert]);
+		}
+		fcent.scale(1.0 / numVertHere);
+
+		CoordinateSystem cs = new CoordinateSystem();
+		cs.setOrigin(fcent);
+		
+		
+		// Orientation. Now it's getting dirty.
+		// We'll only use 3 vertices to calculate our normal vector:
+		// The first 3 non-parallel vertices of this face. All further
+		// vertices won't be taken into account. Due to the fact that we
+		// use the first directional vector as our Z-direction, this
+		// works best when using *quad* meshes. Some TriMeshes will
+		// give good results, too, tubes for example - but tri-cylinders
+		// will tend to look crappy.
+		Vec3 udir = new Vec3();
+		Vec3 zdir;
+		if (numVertHere >= 3)
+		{
+			// Unfortunately, we need this loop to make sure that we don't
+			// use parallel vectors. At some point, vectors *must* get
+			// non-parallel - otherwise this mesh is quite corrupt.
+			boolean checked = false;
+			for (int k = 1; !checked && k <= numVertHere; k++)
+			{
+				Vec3 a = verts[mesh.getFaceVertexIndex(i, (k - 1) % numVertHere)].minus(verts[mesh.getFaceVertexIndex(i, k % numVertHere)]);
+				Vec3 b = verts[mesh.getFaceVertexIndex(i, (k + 1) % numVertHere)].minus(verts[mesh.getFaceVertexIndex(i, k % numVertHere)]);
+				
+				a.normalize();
+				b.normalize();
+				
+				if (Math.abs(a.dot(b)) < (1.0 - 10e-5))
+				{
+					udir = a.cross(b);
+					zdir = a;
+					checked = true;
+				}
+			}
+			
+			if (!checked)
+			{
+				print("This mesh looks corrupt. Found a face whose boundary is a line?");
+				return false;
+			}
+		}
+		else
+		{
+			print("Huh? There's a \"face\" with less than 3 vertices... Aborting.");
+			return false;
+		}
+
+		cs.setOrientation(zdir, udir);
+		
+		// Add the object
+		script.addObject(obj, cs);
+	}
+	
+	return true;
+}
+
+// Creates greebles on the mesh's *vertices*
+boolean vertexGreebles(Object3D objIn)
+{
+	if (!(objIn instanceof Mesh))
+	{
+		print("Vertex-aligned greebles requested, but this object is no mesh at all.");
+		print("In fact, it's an instance of: " + objIn.getClass());
+		print("Can't handle that.");
+		return false;
+	}
+
+	Mesh mesh = (Mesh)objIn;
+
+	Vec3[] verts = mesh.getVertexPositions();
+	Vec3[] norms = mesh.getNormals();
+
+	if (verts.length != norms.length)
+	{
+		print("Critical error: Number of vertices != number of normals.");
+		return false;
+	}
+
+	// Iterate over the object's vertices
+	for (int i = 0; i < verts.length; i++)
+	{
+		// Create a cube at the position of this vertex
+		Cube obj = new Cube(
+					baseWidth * (getRandVal() * randWidth + 1),
+					baseHeight * (getRandVal() * randHeight + 1),
+					baseDepth * (getRandVal() * randDepth + 1)
+					);
+
+		CoordinateSystem cs = new CoordinateSystem();
+		cs.setOrigin(verts[i]);
+		
+		// Set this cubes orientation according to the normal vector at
+		// this vertex - careful: do not cross two parallel vectors...
+		Vec3 zdir;
+		if (Math.abs(norms[i].dot(Vec3.vy())) < (1.0 - 10e-5))
+		{
+			zdir = Vec3.vy().cross(norms[i]);
+		}
+		else
+		{
+			zdir = Vec3.vx().cross(norms[i]);
+		}
+		zdir.normalize();
+		cs.setOrientation(zdir, norms[i]);
+		
+		// Add the object
+		script.addObject(obj, cs);
+	}
+	
+	return true;
+}
+
+switch (style)
+{
+	case 0:
+		if (!faceGreebles(tObj))
+			return;
+		break;
+	case 1:
+		if (!vertexGreebles(tObj))
+			return;
+		break;
+}
+
+// Pushing myself to location/orientation of the target object
+Vec3 zdirObj = t_oi.getCoords().getZDirection();
+Vec3 udirObj = t_oi.getCoords().getUpDirection();
+Vec3 origObj = t_oi.getCoords().getOrigin();
+script.getCoordinates().setOrientation(zdirObj, udirObj);
+script.getCoordinates().setOrigin(origObj);

@@ -1,0 +1,467 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+<!--  xml header for scripts & plugin manager --> 
+<script>
+	<name>Helix</name>
+	<author>TroY</author>
+	<version>0.3</version>
+	<date>2008-03-24</date>
+	<description>
+Create a helix around a curve - see HelixScript.pdf for details
+
+See also: http://www.aoi-board.de/index.php?action=posts&fid=30&tid=139
+    </description>
+</script>
+*/
+
+// -------------------------------------------------------------------
+// -- PARAMETERS --
+
+// again, see HelixScript.pdf for details
+
+
+String helixSource = "helixCurve";
+
+int subdiv = 5;
+int vertperturn = 16;
+
+boolean normalizeToRadius = true;
+double radius = 1.0;
+
+boolean doTube = true;
+double tubeThick = 0.2;
+
+boolean thickTapering = false;
+
+boolean adjustOrigin = false;
+
+// smoothing method:
+// 0 = none
+// 2 = interpolating
+// 3 = approximating
+int smoothingMethod = 3;
+
+// tube end style:
+// 0 = open ends
+// 1 = closed ends
+// 2 = flat ends
+int tubeEndStyle = 2;
+
+boolean curveClosed = false;
+
+int glitchCorrection = 1;
+
+double spiralOffset = 0.0;
+
+
+// -------------------------------------------------------------------
+
+// methods
+
+/*
+// for debugging purposes - display a "vector" as a curve with 2 vertices
+printVector(Vec3 which, Vec3 offset)
+{
+	Vec3[]	 vecs = new Vec3[2];
+	float[]	 snes = new float[] {1.0f, 1.0f};
+	
+	vecs[0] = new Vec3(offset);
+	
+	vecs[1] = new Vec3(offset);
+	vecs[1].add(which);
+	
+	Curve out = new Curve(vecs, snes, 0, false);
+
+	ObjectInfo oi = new ObjectInfo(out, new CoordinateSystem(), "");
+
+	script.addObject(oi);
+}
+*/
+
+// rotate a vector around another
+rotateVec(Vec3 which, Vec3 by, double degree)
+{
+	// Now using AoI's methods - thx Peter!
+	
+	// degree to radian
+	degree = Math.PI / 180.0 * degree;
+	
+	// copy vectors to ensure they remain untouched
+	Vec3 rotThis = new Vec3(which);
+	Vec3 byNorm  = new Vec3(by);
+	
+	// byNorm has to be normalized
+	byNorm.normalize();
+	
+	// get the right rotation matrix und multiply it with our vector
+	Vec3 out = Mat4.axisRotation(byNorm, degree).times(rotThis);
+	
+	// that's it!
+	return out;
+}
+
+// get the angle between two vectors
+angleBetweenVectors(Vec3 a, Vec3 b)
+{
+	double dot = a.dot(b);
+	double prodLen = a.length() * b.length();
+	
+	// this is necessary because due to limited accuracy the following
+	// division can be sth like 1.00000000000000000002 and so the
+	// Math.acos() would fail
+	double aCosFrom = dot / prodLen;
+	if (aCosFrom > 1.0)
+		aCosFrom = 1.0;
+	else if (aCosFrom < -1.0)
+		aCosFrom = -1.0;
+	
+	return Math.acos(aCosFrom) / Math.PI * 180.0;
+}
+
+// extract curves out of other object containers
+extractCurve(ObjectInfo oi)
+{
+	// no container inside that info?
+	if (!(oi.object instanceof artofillusion.object.ObjectCollection))
+	{
+		return null;
+	}
+	
+	// this will enumerate all objects in it
+	java.util.Enumeration en = oi.object.getObjects(oi, true, script.getScene());
+
+	// iterate through the objects ...
+	while (en.hasMoreElements())
+	{
+		Object next = en.nextElement();
+		
+		// is this an object info? just to be sure.
+		if (next instanceof ObjectInfo)
+		{
+			// get its object
+			Object3D outObj = ((ObjectInfo)next).object;
+			
+			if (outObj instanceof Curve)
+			{
+				// create a new object info
+				ObjectInfo thisObjInf = new ObjectInfo(
+										outObj.duplicate(),
+										((ObjectInfo)next).coords.duplicate(),
+										"Trajectory (within script)"
+									);
+				
+				thisObjInf.coords.setOrigin(((ObjectInfo)next).coords.getOrigin());
+				thisObjInf.coords.setOrientation(
+								((ObjectInfo)next).coords.getZDirection(),
+								((ObjectInfo)next).coords.getUpDirection()
+							);
+				
+				// we have everything we need - return it
+				return thisObjInf;
+			}
+		}
+	}
+	
+	// no curve found inside the script
+	return null;
+}
+
+// get the curve/tube if it's an actor
+getCurveFromActor(ObjectInfo oi, int smoothingMethod)
+{
+	if (oi.object instanceof artofillusion.animation.Actor)
+	{
+		ObjectInfo out = oi.duplicate();
+		out.object = oi.object.getWrappedObject();
+		
+		// keyframes / blending already applied.
+		
+		if (!(out.object instanceof Curve))
+		{
+			return null;
+		}
+		
+		return out;
+	}
+	
+	return null;
+}
+
+// check if the given parameter exists - if not, return null
+getParameterSafe(String name)
+{
+	try
+	{
+		return new Double(script.getParameter(name));
+	}
+	catch (Exception ex)
+	{
+		return null;
+	}
+}
+
+// -------------------------------------------------------------------
+
+// ready up objects
+
+// run as a scripted object
+scene = script.getScene();
+selObj = scene.getObject(helixSource);
+
+if (selObj == null)
+{
+	// no annoying message ;=)
+	return;
+}
+
+// we will now inspect the object type: is it a curve or another container?
+// or an actor? does this actor "contain" a curve?
+
+ObjectInfo useThis = null;
+if (selObj.object instanceof Curve)
+{
+	// ok, it's a curve. we can use it.
+	useThis = selObj;
+}
+else if (selObj.object instanceof artofillusion.object.ObjectCollection)
+{
+	// it's another container! try to get a curve out of it
+	useThis = extractCurve(selObj);
+	
+	if (useThis == null)
+	{
+		print("The selected object collection \"" + selObj.name + "\" did not contain a curve.");
+		return;
+	}
+}
+else if (selObj.object instanceof artofillusion.animation.Actor)
+{
+	useThis = getCurveFromActor(selObj, smoothingMethod);
+	
+	if (useThis == null)
+	{
+		print("The selected actor \"" + selObj.name + "\" did not contain a curve.");
+		return;
+	}
+}
+else
+{
+	// no support for other types
+	return;
+}
+
+// -------------------------------------------------------------------
+
+// did the user set any parameters to be animated?
+
+Double param = null;
+
+param = getParameterSafe("radius");
+if (param != null)
+{
+	radius = param.doubleValue();
+}
+
+param = getParameterSafe("tubeThick");
+if (param != null)
+{
+	tubeThick = param.doubleValue();
+}
+
+param = getParameterSafe("glitchCorrection");
+if (param != null)
+{
+	if (param == 1.0)
+		glitchCorrection = 1;
+	else
+		glitchCorrection = -1;
+}
+
+param = getParameterSafe("spiralOffset");
+if (param != null)
+{
+	spiralOffset = param.doubleValue();
+}
+
+// -------------------------------------------------------------------
+
+// objects are ready, now create the helix
+
+// subdivide 
+curveWfVert = useThis.object.subdivideCurve(subdiv).getVertices();
+numWfVert = curveWfVert.length;
+
+// out
+Vec3[]	 vecs = new Vec3[numWfVert - 1];
+float[]	 snes = new float[numWfVert - 1];
+double[] thi  = new double[numWfVert - 1];
+double[] rads = new double[numWfVert - 1];
+
+Vec3 letzterSenkrecht = null;
+//Double alphaSign = null;
+for (i = 0; i < numWfVert - 1; i++)
+{
+	// get two vertices on the trajectory: a and b
+	Vec3 eins = new Vec3(curveWfVert[i].r);
+	Vec3 zwei = new Vec3(curveWfVert[i + 1].r);
+	
+	// calc the local vector (b - a)
+	Vec3 richtung = new Vec3(zwei);
+	richtung.subtract(eins);
+	
+	// the cross product of those vectors will give a vector
+	// orthogonal to them
+	Vec3 senkrechtZuRichtung = eins.cross(zwei);
+	
+	// --- DIRTY 003 ---
+	// correct flat vector...
+	// remark to programmers reading this: it *IS* dirty. but it works.
+	
+	/*
+		If two components in a vector are 0, you can't do the cross
+		product (figurative: in fact it's a 1-dimensional vector) and
+		the result will be a (0, 0, 0). It's easy to correct this:
+		Just push both vectors a bit so that the 0's are 1's.
+	*/
+	if (   senkrechtZuRichtung.x == 0.0
+		&& senkrechtZuRichtung.y == 0.0
+		&& senkrechtZuRichtung.z == 0.0
+		)
+	{
+		Vec3 korrV = new Vec3(1.0, 1.0, 1.0);
+		// again, test if korrV and richtung are parallel
+		Vec3 linTest = korrV.cross(richtung);
+		if (   linTest.x == 0.0
+		    && linTest.y == 0.0
+		    && linTest.z == 0.0
+		    )
+		{
+			korrV = new Vec3(1.0, 2.0, 3.0);
+		}
+		
+		eins.add(korrV);
+		zwei.add(korrV);
+		// --
+		senkrechtZuRichtung = eins.cross(zwei);
+		// --
+		eins.subtract(korrV);
+		zwei.subtract(korrV);
+	}
+	// --- DIRTY 003 ---
+	
+	// --- DIRTY 002 ---
+	Vec3 merk = new Vec3(senkrechtZuRichtung);
+	if (letzterSenkrecht != null)
+	{
+		// make sure the direction hasn't been changed
+		// remark to programmers reading this, part 2:
+		// it is still dirty. but it still works.
+		
+		/*
+			note on this one:
+			when there's an angle (= alpha) between this orthogonal vector
+			and the last one, rotate this orth. vec around "richtung"
+			by alpha.
+			
+			this prevents some serious glitches.
+			
+			let the user choose whether to rotate it backwards or forwards.
+		*/
+		
+		double alpha = angleBetweenVectors(letzterSenkrecht, senkrechtZuRichtung);
+
+		if (alpha != 0.0)
+		{
+			senkrechtZuRichtung = rotateVec(senkrechtZuRichtung, richtung, glitchCorrection * alpha);
+		}
+	}
+	letzterSenkrecht = new Vec3(senkrechtZuRichtung);
+	// --- DIRTY 002 ---
+
+	// now work on "hier" - needs refactoring...
+	Vec3 hier = senkrechtZuRichtung;
+	
+	// do the spiral
+	hier = rotateVec(hier, richtung, ((double)i * 360.0 / vertperturn) + spiralOffset);
+
+	// what kind of normalization? always the same radius or adaptation?
+	double realRadius = 0.0;
+	if (normalizeToRadius)
+	{
+		// unified radius
+		realRadius = radius;
+	}
+	else
+	{
+		// adapting radius
+		realRadius = richtung.length() * radius;
+	}
+	
+	// normalization
+	hier.normalize();
+	hier.scale(realRadius);
+
+	// add this vector to the position vector of the current vertex
+	Vec3 outline = new Vec3(eins);
+	outline.add(hier);
+
+	vecs[i] = outline;
+	snes[i] = 1.0f;
+	
+	// save radius for thickness tapering
+	if (doTube && thickTapering && !normalizeToRadius)
+		rads[i] = realRadius;
+	// otherwise set thickness directly
+	else
+		thi[i] = tubeThick;
+}
+
+// adjust thickness?
+if (doTube && thickTapering && !normalizeToRadius)
+{
+	// find max ...
+	double max = 0.0;
+	for (int i = 0; i < rads.length; i++)
+	{
+		if (rads[i] > max)
+		{
+			max = rads[i];
+		}
+	}
+	
+	// do tapering
+	for (int i = 0; i < thi.length; i++)
+	{
+		thi[i] = (rads[i] / max) * tubeThick;
+	}
+}
+
+// -------------------------------------------------------------------
+
+// final orga stuff
+
+if (doTube)
+	out = new Tube(vecs, snes, thi, smoothingMethod, tubeEndStyle);
+else
+	out = new Curve(vecs, snes, smoothingMethod, false);
+
+if (!doTube && curveClosed)
+{
+	out.setClosed(true);
+}
+
+// create the new OI
+oi = new ObjectInfo(out, new CoordinateSystem(), "");
+
+// add it and transform my own coords so that the helix fits the base object
+script.addObject(oi);
+
+// ... if requested
+if (adjustOrigin)
+{
+	script.getCoordinates().setOrigin(selObj.coords.getOrigin());
+	script.getCoordinates().setOrientation(
+					selObj.coords.getZDirection(),
+					selObj.coords.getUpDirection()
+				);
+}

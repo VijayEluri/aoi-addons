@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<extension name="DistriRend" version="0.1.1">
+	<plugin class="troy.distrirend.PrepareDistributed"/>
+	<author>TroY</author>
+	<date>2009-03-31</date>
+	<description>
+Splits a scene into two files which can be rendered simultaneously on
+two PCs.
+	</description>
+
+	<history>
+		<log version="0.1.1" date="31 Mar 2009" author="TroY">
+- GPL stuff.
+- Moved on to AoI's current plugin system.
+		</log>
+		
+		<log version="0.1" date="03 Feb 2008" author="TroY">
+Original version.
+		</log>
+	</history>
+	<comments>
+	</comments>
+</extension>

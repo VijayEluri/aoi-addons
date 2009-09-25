@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+
+<extension name="DailyHelpers" version="0.5">
+	<plugin class="troy.generic.DailyHelpersPlugin"/>
+	<plugin class="troy.generic.EditingPanel"/>
+	<author>TroY</author>
+	<date>2009-04-14</date>
+	<description>
+	Daily Helpers, automatic adjustments:
+		- Maximize new main windows
+		- Activate "Show Grid"
+		- Activate "Snap To Grid"
+		- Reset ambient color to black
+		- Kill the initial directional light
+		- Alter the camera for a better view
+	
+	AutoBackup facility:
+		- Whenever you save a scene, a copy of this newly saved scene is created
+	
+	AutoSave facility:
+		- Well, yes. An AutoSave-feature. :-)
+
+	Use "Edit", "Plugin Preferences" to change this settings!
+	</description>
+
+	<import name="PreferencesPlugin"/>
+	<resource type="Preferences" id="DailyHelpers" name="preferences.properties"/>
+	<resource type="TranslateBundle" id="dailyhelpers" name="dailyhelpers"/>
+	<category class="artofillusion.preferences.PreferencesEditor"/>
+
+	<history>
+		<log version="0.5" date="14 Apr 2009" author="TroY">
+			Added AutoSave
+		</log>
+
+		<log version="0.4.2" date="15 Aug 2008" author="TroY">
+			GPL stuff
+		</log>
+
+		<log version="0.4.1" date="29 june 2008" author="TroY">
+			Bugfix release: Some changes were applied on loaded scenes (kill light, kill ambient)
+		</log>
+		
+		<log version="0.4" date="27 june 2008" author="TroY">
+			Migrated from "TroyTools" to a newer code base.
+		</log>
+	</history>
+	<comments>
+	</comments>
+</extension>

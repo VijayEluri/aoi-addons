@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+
+<extension name="AdvancedCurves" version="0.3.5">
+	<plugin class="troy.advcurves.AdvCurvesPlugin"/>
+	<author>TroY</author>
+	<date>2009-04-20</date>
+	<description>
+Advanced Curves
+	</description>
+	
+	<resource type="TranslateBundle" id="advcurves" name="advcurves"/>
+	<resource type="UITheme" id="advcurves" name="advcurves/theme.xml"/>
+	<resource type="help" id="AdvancedCurves" name="manual/HelpSet.hs" />
+	<resource type="help" id="AdvancedCurves" name="manual_de/HelpSet_de.hs" locale="DE" />
+	
+	<history>
+		<log version="0.3.5" date="20 Apr 2009" author="TroY">
+- "Oops": getSceneMenu != getObjectMenu :)
+		</log>
+
+		<log version="0.3.4" date="10 Jan 2009" author="TroY">
+- Minor code change: Adding menu entries via getObjectMenu()
+		</log>
+
+		<log version="0.3.3" date="06 Dec 2008" author="TroY">
+Added:
+- "Revert Vertex Order"
+
+Refresh for AoI 2.7ea2:
+- New icons (thanks Nik!)
+- Fixed: Menu entries got added to the wrong menu
+
+Cleaned up this file (extensions.xml), so that the version history is
+actually readable from inside AoI...
+		</log>
+	
+		<log version="0.3.2" date="15 Aug 2008" author="TroY">
+GPL stuff
+		</log>
+
+		<log version="0.3.1" date="04 Aug 2008" author="TroY">
+- Added german translation of the manual - Thanks to Harald/Vidiot!
+		</log>
+
+		<log version="0.3" date="25 May 2008" author="TroY">
+- AdvCurves start with a null-length curve
+- Improved selection handling: Consecutive extension without SHIFT
+- All points on a curve can be deleted now to get the curve empty again
+- CreateAdvCurve-Tool "double click dialog" to choose smoothing method
+- Bugfixes:
+	+ Clipping bug when adding a point "far away"
+	+ No undo record when aligning points on the grid
+		</log>
+		<log version="0.2.2" date="05 May 2008" author="Nik TJ">
+- Packaged manual into jar
+		</log>
+		<log version="0.2.1" date="05 May 2008" author="TroY">
+- German translation file
+- Bugfixes:
+	+ Context menu not shown on MS Windows
+	+ New curves not selected properly
+	+ No undo record for new curves
+		</log>
+		<log version="0.2" date="04 May 2008" author="TroY">
+- Improved grid alignment
+- Added right click menu to AdvCurveViewer
+- Changed reaction to "Toggle: Show Control Mesh" to fit the behaviour of PolyMeshEditorWindow
+- Arrow
+- Various bugfixes and small changes
+	   </log>
+	
+		<log version="0.1" date="30 Apr 2008" author="TroY">
+Initial release. Introducing a tool to extend curves and a better ViewerCanvas
+	   </log>
+	</history>
+	<comments>
+	</comments>
+</extension>

@@ -1,0 +1,121 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+<!--  xml header for scripts & plugin manager --> 
+<script>
+	<name>TextureScripting</name>
+	<author>TroY</author>
+	<version>0.1</version>
+	<date>2009-03-31</date>
+	<description>
+German tutorial-script on how to access texture parameters from within a script.
+
+See also: http://www.aoi-board.de/index.php?action=posts&fid=26&tid=442
+    </description>
+</script>
+*/
+
+
+
+/*
+    Besorge dir von der Szene eine Referenz auf die Textur namens "proc2d_1".
+    Dieser Name muss leider bekannt sein und hier fest im Skript stehen,
+    wesentlich eleganter geht das leider nicht. Die Textur kann prinzipiell
+    jede beliebige Textur sein.
+*/
+Texture mytex = script.getScene().getTexture("proc2d_1");
+
+/*
+    Anzahl und Parameter der Kugeln bestimmen.
+*/
+double radius = 1.0;
+double gap    = 0.5;
+int    count  = 10;
+
+/*
+    In dieser Schleife die einzelnen Kugeln erstellen, deren Eigenschaften
+    setzen und sie dann zum Skript hinzufügen.
+*/
+for (int i = 0; i < count; i++)
+{
+    /*
+        Jede Kugel muss ein eigenes (lokales) Koordinatensystem bekommen.
+        In diesem wird auch die Position der Kugel gesetzt: Das ist ein
+        Ortsvektor, dessen Y- und Z-Koordinaten 0 sind, also werden die
+        Kugeln, da die X-Koordinate von "i" abhängt, entlang der X-Achse
+        aufgereiht sein.
+    */
+    CoordinateSystem pos = new CoordinateSystem();
+    pos.setOrigin(new Vec3(i * (radius * 2.0 + gap), 0.0, 0.0));
+
+    /*
+        Erstelle eine neue Kugel mit dem gegebenen Radius (er muss dreimal
+        angegeben werden, da die AoI-Kugeln eigentlich Ellipsoide sind und
+        entsprechend "verformt" sein können). Die Referenz auf diese eine
+        Kugel wird unter "obj" gespeichert.
+    */
+    Sphere obj = new Sphere(radius, radius, radius);
+    
+    /*
+        Weise jetzt dieser Kugel ihre Textur zu. Jede Kugel bekommt dabei
+        dieselbe Textur zugewiesen, nämlich unsere prozedurale. Wie man
+        sieht, kann man am Mapping hier im Skript nicht viel drehen - das
+        Default-Mapping macht am meisten Sinn. Um dieses zu erhalten, muss
+        man die Textur fragen, wie sie sich selbst auf das Objekt mappen
+        würde. Daher der "seltsame" Aufruf.
+    */
+    obj.setTexture(mytex, mytex.getDefaultMapping(obj));
+
+    /*
+        Das Objekt hat jetzt einen Satz Texturparameter bekommen, über den
+        man iterieren kann. Diese Parameter werden (im Gegensatz zur Textur
+        selbst) pro Objekt gespeichert.
+    */
+    TextureParameter[] params = obj.getParameters();
+    for (TextureParameter p : params)
+    {
+        /*
+            Wenn der aktuell betrachtete Parameter "par_hue" heißt, dann
+            sage dem Objekt, dass dieser Parameter auf dem ganzen Objekt
+            einen konstanten Wert haben soll (Erinnerung: Texturparameter
+            können auch pro Face oder Vertex gesetzt werden).
+
+            "i / count" rechnet dabei den Wert "i" in den Bereich 0.0 bis
+            1.0 um. Wichtig sind hier die Casts nach "double", da man
+            sonst eine Ganzzahldivision machen und immer "0" erhalten würde.
+        */
+        if (p.name.equals("par_hue"))
+        {
+            obj.setParameterValue(p, new ConstantParameterValue((double)i / (double)count));
+        }
+
+        /*
+            Setze für "par_spec" und "par_trans" andere Werte. Skaliere hier
+            "i" nur in den Bereich 0.0 bis 0.75, damit man von der Farbe noch
+            etwas sieht.
+
+            Durch die Multiplikation mit "0.75" wird "i" automatisch nach
+            "double" gecasted.
+        */
+        else if (p.name.equals("par_spec"))
+        {
+            obj.setParameterValue(p, new ConstantParameterValue(0.75 * i / (double)count));
+        }
+
+        /*
+            ... Transparenz soll in die andere Richtung laufen, also von der
+            ersten zur letzten Kugel immer schwächer werden (von 0.75 nach 0.0).
+            Daher "count - i" statt nur "i".
+        */
+        else if (p.name.equals("par_trans"))
+        {
+            obj.setParameterValue(p, new ConstantParameterValue(0.75 * (count - i) / (double)count));
+        }
+    }
+    
+    /*
+        Ein "ScriptedObject" ist in AoI ein Container für andere Objekte. Um
+        ein Objekt hinzuzufügen, stellt man dieses also zusätzlich in den
+        Container des Skriptes hinein und nicht direkt in die Szene.
+    */
+    script.addObject(obj, pos);
+}

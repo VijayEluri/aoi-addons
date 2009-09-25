@@ -1,0 +1,30 @@
+ScriptedObject myobject = script.getScene().getObject("Script").getObject();
+
+int count = myobject.getNumParameters();
+double thick = 0.2;
+double preamp = 10.0;
+double angle = (11.25) * (Math.PI / 180.0);
+Mat4 rotmat = Mat4.xrotation(angle);
+
+Vec3[] pts = new Vec3[count / 2.0];
+Vec3 curvec = new Vec3(0.0, 1.0, 0.0);
+
+int pc = 0;
+for (int i = 0; i < count; i += 2)
+{
+	double thisamp = myobject.getParameterValue(i);
+	
+	//curvec.normalize();
+	//curvec.scale((thisamp + 1.0) * preamp);
+	
+	pts[pc] = new Vec3(curvec);
+	pts[pc].add(new Vec3(thick * i * 0.25, 0.0, 0.0));
+	
+	//curvec = rotmat.times(curvec);
+	pc++;
+}
+
+if (count > 1)
+{
+	script.addObject(new Tube(pts, thick, 3, 0), new CoordinateSystem());
+}

@@ -1,0 +1,131 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+<!--  xml header for scripts & plugin manager -->
+<script>
+	<name>Parametric Hair</name>
+	<author>Nate Ryan (nate01@users.sourceforge.net), TroY</author>
+	<version>1.8</version>
+	<date>11/17/2008</date>
+	<description>
+This script puts hair on the object named hairy. There must be an object in your scene named "hairy."
+
+The hair will grow from each vertex on the object. Multiple hairs can grow from each vertex by
+increasing the value of the hairs variable. If there are multiple hairs at a vertex, their spread
+can be increased by increasing the value of maxSep. It's a good idea to make the new script object a child of the "hairy" object so that they move and rotate together easily.
+
+Parametric extension:
+
+A per-vertex mapped texture for each hair. This allows you to set the
+hair's color from its start to its end. The parameter "hsColor" of a
+texture named "hsSingleHair" (change it if needed) will be set to 0 at
+the hair's start and 1 at the hair's end (linear interpolation in
+between).
+
+See "ParametricHair.aoi" for an example.
+
+See also: http://www.aoi-board.de/index.php?action=posts&fid=12&tid=338
+    </description>
+</script>
+*/
+
+waviness = 0.5;                    // Controls how straight the hairs are 
+length = 1.0;                      // Length of each hair 
+thickness = 0.02;                  // Thickness of each hair 
+hairs = 10;                        // Number of hairs at each vertex 
+coneAngle = 5;                     // Sets the width of the "cone" of hairs at the base 
+gravity = new Vec3(0.0, -1, 0.0);  // Sets the strength and direction of gravity 
+maxSep = 0.2;                      // avg separation of hairs in a vertex clump 
+inset = 0.05;                      //distance to inset each hair to lower them into the object
+basemeshname = "hairy";  
+parametricTextureName = "hsSingleHair";
+
+if (script.isPreview()) 
+  hairs = 1;  
+
+script.getCoordinates().toLocal().transformDirection(gravity);
+random = new Random(0);
+segmentLength = length/3.0;
+
+// Find the object to grow hair on.
+scene = script.getScene();
+info = scene.getObject(basemeshname);
+if (info == null) {
+   print("Could not find object to apply hair to");
+   return; 
+}  
+vector0 = info.coords.getOrigin(); 
+up = info.coords.getUpDirection(); 
+Zee = info.coords.getZDirection(); 
+mesh = info.object; 
+script.getCoordinates().setOrigin(vector0); 
+script.getCoordinates().setOrientation(Zee,up);  
+
+// Duplicate and outset the vertices.  
+vert = mesh.getVertices(); 
+norm = mesh.getNormals(); 
+for (i = 0; i < vert.length; i++){
+   for (j = 0; j < hairs; j++){
+      v = new Vec3 [4];
+      // Set the base at the vertex.
+      x = random.nextDouble()-0.5;
+      y = random.nextDouble()-0.5;
+      if ( norm[i].z == 0) {
+         z = random.nextDouble()-0.5;x = 0;y = 0;
+      } else {
+         z = (-x*norm[i].x-y*norm[i].y)/norm[i].z;
+      }
+      perpv = new Vec3(x,y,z);
+      perpv.normalize();
+      perpv = perpv.times(random.nextDouble()*maxSep);
+      v[0] = new Vec3(vert[i].r.x + perpv.x, vert[i].r.y + perpv.y,vert[i].r.z + perpv.z);
+      v[0].subtract(norm[i].times(inset));
+
+      // Determine the direction of the hair when it leaves the base.
+      theta1 = coneAngle*(random.nextDouble()-0.5)*Math.PI/180.0;
+      theta2 = coneAngle*(random.nextDouble()-0.5)*Math.PI/180.0;
+      theta3 = coneAngle*(random.nextDouble()-0.5)*Math.PI/180.0;
+      phi = random.nextDouble()*2.0*Math.PI;
+      dir = new Vec3(theta1+norm[i].x, theta2+norm[i].y, theta3+norm[i].z);
+      dir.add(gravity.times(0.5));
+
+      // Place the remaining vertices.
+      for (k = 1; k < v.length; k++)     {
+        // Place the next vertex.
+        dir.normalize();
+        v[k] = v[k-1].plus(dir.times(segmentLength));
+        // Add a random displacement to the direction.
+        dir.x += waviness*(random.nextDouble()-0.5);
+        dir.y += waviness*(random.nextDouble()-0.5);
+        dir.z += waviness*(random.nextDouble()-0.5);
+        // Add a displacement due to gravity.
+        dir.add(gravity);
+      }
+      // Create the hair.
+      hair = new Tube(v, new float [] {1.0f, 1.0f, 1.0f, 1.0f}, new double []
+       {thickness, thickness,  thickness, 0.0}, Tube.APPROXIMATING, Tube.OPEN_ENDS);
+
+		// ------- PARAMETRIC HAIR HACK
+		// Set texture
+		Texture tex = script.getScene().getTexture(parametricTextureName);
+		hair.setTexture(tex, new LinearMapping3D(hair, tex));
+
+		// Get texture parameter: hsColor
+		TextureParameter hsColor = tex.getParameters()[0];
+
+		// Build new parameter object
+		VertexParameterValue vparam = new VertexParameterValue(hair, hsColor);
+		int max = vparam.getValue().length;
+		double[] newvals = new double[max];
+		for (int i = 0; i < max; i++)
+		{
+			newvals[i] = (double)i / max;
+		}
+		vparam.setValue(newvals);
+
+		// Now set the new parameters
+		hair.setParameterValue(hsColor, vparam);
+		// ------- PARAMETRIC HAIR HACK
+
+      script.addObject(hair, new CoordinateSystem());
+   }
+} 

@@ -1,0 +1,99 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+<!-- xml header for scripts & plugin manager --> 
+<script>
+	<name>3DNP - Object</name>
+	<author>TroY</author>
+	<version>0.1.2</version>
+	<date>2008-01-12</date>
+	<description>
+This script alters the cameras orientation to produce a series of images
+that's ready to be displayed by 3DNP:
+
+http://thoro.de/portfolio/verschiedenes/3DNP.html
+
+In this version, the cameras orientation AND position is altered! It's
+being moved on a sphere around a fixed center. The result is, that you
+can "grab" your object and rotate it.
+
+Do not forget to edit the variable "levels" in this script. It's the
+amount of levels you can look up and down. So, if you set levels to "9",
+you'll get 4 levels of looking up, 4 of looking down and one level looking
+straight ahead.
+
+Note: "levels" defines the amount of seconds you'll have to render. So
+if you set it to 9, you'll have to render 9 seconds.
+
+The variables "oX", "oY" and "oZ" define the spheres center. "r" defines
+the cams distance from this center.
+
+Be sure to rename your camera to "3DNPCam" - otherwise the script can't
+find it.
+
+See also: http://www.aoi-board.de/index.php?action=posts&fid=11&tid=81
+    </description>
+    <comments>
+    
+    </comments>
+</script>
+*/
+
+// "Object"-version - cam rotates around an object rather than rotate the
+// scene around the cam.
+
+// How many levels? Means: How far is the user supposed to look up and down?
+// Set this to an ODD number!
+// And: This is the amount of seconds you'll have to render.
+levels = 9;
+
+// What's the cam's position in the scene?
+oX = 0.0;
+oY = 0.0;
+oZ = 0.0;
+
+// The cam will be moved on a sphere around it's origin. What's this sphere's
+// radius?
+r = 10;
+
+
+
+// Just to save some time writing this script ... ;=)
+degCos(Double a)
+{
+	return Math.cos(Math.PI / 180.0 * a);
+}
+degSin(Double a)
+{
+	return Math.sin(Math.PI / 180.0 * a);
+}
+
+// Get some info objects
+scene = script.getScene();
+info = scene.getObject("3DNPCam");
+
+// No cam named "3DNPCam" found?
+if (info == null)
+{
+// disabled to prevent AoI from freezing
+//	print("No object named '3DNPCam' found!");
+	return;
+}
+
+// Time? =)
+time = scene.getTime();
+
+// okay ... some dirty tricks
+reallevels = levels + 1;
+curlevel = (int)time + 1;
+x = ((double)curlevel / (double)reallevels) * 180.0 - 90.0;
+
+// Set cam's position and orientation
+phi = -time * 360.0;
+theta = ((double)curlevel / (double)reallevels) * 180.0;
+
+info.coords.setOrigin(new Vec3(oX + r * degSin(theta) * degCos(phi), oY + r * degCos(theta), oZ + r * degSin(theta) * degSin(phi)));
+info.coords.setOrientation(x, phi + 90, 0);
+
+// Inform everyone about our changes
+//scene.objectModified(info.object);
+//info.object.sceneChanged(info, scene);

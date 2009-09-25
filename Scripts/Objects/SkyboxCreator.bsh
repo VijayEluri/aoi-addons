@@ -1,0 +1,63 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+<!-- xml header for scripts & plugin manager --> 
+<script>
+	<name>SkyboxCreator</name>
+	<author>TroY</author>
+	<version>0.2</version>
+	<date>2008-11-02</date>
+	<description>
+This script alters the cameras orientation to create the neccessary images for a skybox.
+
+--- RENAME YOUR CAMERA TO 'SkyCam' ! ---
+
+Render from 1 seconds to 7 seconds with exactly 1 FPS.
+
+See also: http://www.friendlyskies.net/aoiforum/viewtopic.php?id=1399
+    </description>
+    <comments>
+hf @ Unreal and stuff!
+    </comments>
+</script>
+*/
+
+// -----------------
+// fixes AoI-freeze: if this script is loaded via dropdown-list but
+//                   the cam isn't named properly, the print-window
+//                   should pop up. this seems to freeze AoI.
+//if (script.isPreview())
+//	return;
+// but this workaround introduces a new bug: the "animation" isn't
+// rendered properly - first frame is skipped.
+// -----------------
+
+// Get some info objects
+scene = script.getScene();
+info = scene.getObject("SkyCam");
+
+// No cam named "SkyCam" found?
+if (info == null)
+{
+// disabled to prevent AoI from freezing
+//	print("No object named 'SkyCam' found!");
+	return;
+}
+
+// "reduce" time information to a single integer
+double time = scene.getTime();
+int curlevel = (int)time;
+
+// these are the orientations we're going to set
+int[] yRots = {0, 0, 90, 180, 270,  0,   0};
+int[] xRots = {0, 0,  0,   0,   0, 90, -90};
+// -- note: first column doubled to get around another AoI-bug.
+//          AoI sometimes doesn't seem to call the script for second 0?!
+
+print(curlevel);
+
+// set fov to 90
+((SceneCamera)info.object).setPropertyValue(0, 90.0);
+
+// now adjust the cam's orientation
+if (curlevel >= 0 && curlevel < yRots.length && curlevel < xRots.length)
+	info.coords.setOrientation(xRots[curlevel], yRots[curlevel], 0);

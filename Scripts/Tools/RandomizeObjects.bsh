@@ -1,0 +1,66 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+
+<script>
+	<name>RandomizeObjects</name>
+	<author>TroY</author>
+	<version>1.0</version>
+	<date>2009-04-20</date>
+	<description>
+Simply perturbate the selected objects a little bit.
+
+See also: http://www.aoi-board.de/index.php?action=posts&fid=12&tid=446&site=2#b_4390
+    </description>
+</script>
+*/
+
+Scene scene = window.getScene();
+
+int[] selind = window.getSelectedIndices();
+if (selind.length <= 0)
+{
+	print("You need to select the objects you wish to randomize.");
+	return;
+}
+
+// Choose a random random-seed for now
+int seed = (int)(Math.random() * Integer.MAX_VALUE * 0.75);
+
+// Fire up a little dialog
+BTextField txtSpanX = new BTextField("<enter span here>");
+BTextField txtSpanY = new BTextField("<enter span here>");
+BTextField txtSpanZ = new BTextField("<enter span here>");
+BTextField txtSeed  = new BTextField(Integer.toString(seed));
+ComponentsDialog dlg = new ComponentsDialog(window, "Randomize objects", 
+		new Widget[] { txtSpanX, txtSpanY, txtSpanZ, txtSeed },
+		new String[] { "Max X:", "Max Y:", "Max Z:", "Random seed:" });
+if (!dlg.clickedOk())
+	return;
+
+// Get stuff
+Random rGen = new Random(new Integer(txtSeed.getText()));
+double spanX = new Double(txtSpanX.getText());
+double spanY = new Double(txtSpanY.getText());
+double spanZ = new Double(txtSpanZ.getText());
+
+// Create one undo record for the whole operation
+UndoRecord undo = new UndoRecord(window, false);
+window.setUndoRecord(undo);
+
+// Edit objects
+for (int i = 0; i < selind.length; i++)
+{
+	// Get object, set new position
+	ObjectInfo oi = scene.getObject(selind[i]);
+	CoordinateSystem oldCoords = oi.getCoords().duplicate();
+
+	Vec3 trans = new Vec3(
+			(rGen.nextDouble() * 2.0 - 1.0) * spanX,
+			(rGen.nextDouble() * 2.0 - 1.0) * spanY,
+			(rGen.nextDouble() * 2.0 - 1.0) * spanZ);
+
+	oi.getCoords().setOrigin(oi.getCoords().getOrigin().plus(trans));
+
+	// Add command to our undo record
+	undo.addCommand(UndoRecord.COPY_COORDS, new Object[] { oi.getCoords(), oldCoords } );
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<extension name="musick" version="0.1.1">
+	<plugin class="troy.musick.MusickPlugin"/>
+	<author>TroY</author>
+	<date>2008-08-15</date>
+    <description>
+Lets you control other objects by music files.
+    </description>
+    
+    <!--<resource type="TranslateBundle" id="measure" name="measure"/>-->
+	<resource type="UITheme" id="musick" name="musick/theme.xml"/>
+    
+	<history>
+    	<log version="0.1.1" date="15 Aug 2008" author="TroY">
+			GPL stuff
+    	</log>
+
+    	<log version="0.1" date="16 Jun 2008" author="TroY">
+			initial alpha release
+    	</log>
+    </history>
+    <comments>
+    </comments>
+</extension>

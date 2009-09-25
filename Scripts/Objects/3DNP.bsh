@@ -1,0 +1,68 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+<!-- xml header for scripts & plugin manager --> 
+<script>
+	<name>3DNP - Camera</name>
+	<author>TroY</author>
+	<version>0.1.2</version>
+	<date>2008-01-12</date>
+	<description>
+This script alters the cameras orientation to produce a series of images
+that's ready to be displayed by 3DNP:
+
+http://thoro.de/portfolio/verschiedenes/3DNP.html
+
+In this version, the cameras position is fixed and just its orientation
+is modified. The result is, that, in your "virtual reality", you will
+have a fixed viewpoint and you can look around.
+
+Do not forget to edit the variable "levels" in this script. It's the
+amount of levels you can look up and down. So, if you set levels to "9",
+you'll get 4 levels of looking up, 4 of looking down and one level looking
+straight ahead.
+
+Note: "levels" defines the amount of seconds you'll have to render. So
+if you set it to 9, you'll have to render 9 seconds.
+
+Be sure to rename your camera to "3DNPCam" - otherwise the script can't
+find it.
+
+See also: http://www.aoi-board.de/index.php?action=posts&fid=11&tid=81
+    </description>
+    <comments>
+    
+    </comments>
+</script>
+*/
+
+// How many levels? Means: How far is the user supposed to look up and down?
+// Set this to an ODD number!
+// And: This is the amount of seconds you'll have to render.
+levels = 9;
+
+// Get some info objects
+scene = script.getScene();
+info = scene.getObject("3DNPCam");
+
+// No cam named "3DNPCam" found?
+if (info == null)
+{
+// disabled to prevent AoI from freezing
+//	print("No object named '3DNPCam' found!");
+	return;
+}
+
+// Time? =)
+double time = scene.getTime();
+
+// okay ... some dirty tricks
+int reallevels = levels + 1;
+int curlevel = (int)time + 1;
+double x = -1 * (((double)curlevel / (double)reallevels) * 180.0 - 90.0);
+
+// Set cam's orientation
+info.coords.setOrientation(x, time * 360, 0);
+
+// Inform everyone about our changes
+//scene.objectModified(info.object);
+//info.object.sceneChanged(info, scene);

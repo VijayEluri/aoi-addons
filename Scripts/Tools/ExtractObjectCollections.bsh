@@ -1,0 +1,170 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+<!--  xml header for scripts & plugin manager --> 
+<script>
+	<name>Extract Object Collections</name>
+	<author>TroY</author>
+	<version>0.1.2</version>
+	<date>2008-03-19</date>
+	<description>
+Extracts all objects of an object collection and adds them as regular
+objects to the scene.
+
+See also: http://www.aoi-board.de/index.php?action=posts&fid=30&tid=139
+    </description>
+</script>
+*/
+
+// this method will take care of copied textures and metarials
+handleTexMat(artofillusion.texture.Texture tex, artofillusion.material.Material mat)
+{
+	
+	Scene sc = window.getScene();
+	
+	// textures
+	boolean found;
+	int max;
+	
+	if (tex != null)
+	{
+		found = false;
+		max = sc.getNumTextures();
+		for (int i = 0; i < max; i++)
+		{
+			if (sc.getTexture(i).equals(tex))
+			{
+				found = true;
+			}
+		}
+		
+		if (!found)
+		{
+			sc.addTexture(tex);
+		}
+	}
+
+	// materials
+	if (mat != null)
+	{
+		found = false;
+		max = sc.getNumMaterials();
+		for (int i = 0; i < max; i++)
+		{
+			if (sc.getMaterial(i).equals(mat))
+			{
+				found = true;
+			}
+		}
+
+		if (!found)
+		{
+			sc.addMaterial(mat);
+		}
+	}
+}
+
+// run as a tool
+scene = window.getScene();
+
+sel = scene.getSelection();
+
+num = java.lang.reflect.Array.getLength(sel);
+if (num <= 0)
+{
+   print("Select one or more scripted objects.");
+   return;
+}
+
+for (int i = 0; i < num; i++)
+{
+	// get the i'th object
+	selObj = scene.getObject(sel[i]);
+
+	// we only want scripted objects
+	if (selObj.object instanceof artofillusion.object.ObjectCollection)
+	{
+		// this will run the script and return all objects created by it
+		java.util.Enumeration en = selObj.object.getObjects(selObj, true, window.getScene());
+		
+		// create a new group which will hold all objects of this script - if any
+		String groupTitle = selObj.name + " (Objects)";
+		ObjectInfo thisGroup = new ObjectInfo(
+								new NullObject(),
+								selObj.coords.duplicate(),
+								groupTitle);
+								
+		Object3D outObj = null;
+		
+		// we want to place all objects at the same place in the scene
+		Mat4 coordTrans = selObj.coords.fromLocal();
+
+		boolean foundOne = false;
+
+		// iterate through the objects ...
+		int thisPosition = 0;
+		while (en.hasMoreElements())
+		{
+			Object next = en.nextElement();
+			
+			// is this an object info? just to be sure.
+			if (next instanceof ObjectInfo)
+			{
+				foundOne = true;
+				
+				// get its object
+				outObj = ((ObjectInfo)next).object;
+				
+				// simple name
+				String className = outObj.getClass().getSimpleName();
+				
+				// create a new object info - we want to give it a name
+				ObjectInfo thisObjInf = new ObjectInfo(
+										outObj.duplicate(),
+										((ObjectInfo)next).coords.duplicate(),
+										className + " " + (thisPosition + 1)
+									);
+				
+				// transform its coordinates so that it'll be at the
+				// same place as the script
+				thisObjInf.coords.transformCoordinates(coordTrans);
+			
+				// make sure that textures and materials exist in the
+				// scene too
+				handleTexMat(outObj.getTexture(), outObj.getMaterial());
+				
+				// copy texture and material of the original object (d'uh)
+				//thisObjInf.object.copyTextureAndMaterial(outObj);
+				// -- note: not needed, this should be done by Object3D.duplicate()
+
+
+				// ok, this is a bit strange. I had a look at AoI's
+				// own code in ArraySpec.java and it's done there the
+				// same way. ya well, it works ... although I don't
+				// understand why I have to add the object twice
+				window.addObject(thisObjInf, null);
+				thisGroup.addChild(thisObjInf, thisPosition);
+
+				thisPosition++;
+			}
+		}
+		
+	
+		// if an object has been found, add this group to the scene
+		// and rebuild the list
+		if (foundOne)
+		{
+			window.addObject(thisGroup, null);
+			
+			window.rebuildItemList();
+			window.updateImage();
+		}
+		else
+		{
+			print("Selected object \"" + selObj.name + "\" did not contain any objects.");
+		}
+	}
+	else
+	{
+		print("Selected object \"" + selObj.name + "\" is not an object collection - skipping.");
+	}
+}

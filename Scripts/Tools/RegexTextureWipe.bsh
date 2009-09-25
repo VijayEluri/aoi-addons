@@ -1,0 +1,46 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+
+<script>
+	<name>RegexTextureWipe</name>
+	<author>TroY</author>
+	<version>1.0</version>
+	<date>2009-02-15</date>
+	<description>
+
+Deletes all textures which match the given string.
+
+See also: http://www.aoi-board.de/index.php?action=posts&fid=12&tid=446
+    </description>
+</script>
+*/
+
+// Fire up a little dialog
+BTextField match = new BTextField("<enter pattern here>");
+ComponentsDialog dlg = new ComponentsDialog(window, "Regex texture wipe - careful, no undo! So you better save if in doubt.",
+		new Widget[] { match },
+		new String[] { "Pattern:" });
+if (!dlg.clickedOk())
+	return;
+
+Scene scene = window.getScene();
+String matchstr = match.getText();
+
+// Delete the textures
+int num = scene.getNumTextures();
+boolean mod = false;
+for (int i = num - 1; i >= 0; i--)
+{
+	Texture t = scene.getTexture(i);
+	if (t.getName().matches(matchstr))
+	{
+		// AoI doesn't provide an undo mechanism for textures?
+
+		print("Removed texture " + t.getName());
+		scene.removeTexture(i);
+		mod = true;
+	}
+}
+
+if (mod)
+	window.setModified();

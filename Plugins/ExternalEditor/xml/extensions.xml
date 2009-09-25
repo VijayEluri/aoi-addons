@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<extension name="ExternalEditor" version="0.1.1">
+	<plugin class="troy.external.ExternalEditorPlugin"/>
+	<plugin class="troy.external.EditingPanel"/>
+
+	<import name="PreferencesPlugin"/>
+	<resource type="Preferences" id="ExternalEditor" name="preferences.properties"/>
+	<category class="artofillusion.preferences.PreferencesEditor"/>
+	<resource type="TranslateBundle" id="ExternalEditor" name="ExternalEditor" />
+
+	<author>TroY</author>
+	<date>2009-04-05</date>
+	<description>
+External Editor
+	</description>
+	
+	<history>
+		<log version="0.1.1" date="05 Apr 2009" author="TroY">
+- Use a separate thread to launch the editor. This prevents AoI from being "frozen".
+- Editor command: Support for quoted strings, such as "C:\Program Files\Notepad++\Notepad.exe"
+		</log>
+
+		<log version="0.1" date="03 Apr 2009" author="TroY">
+Initial version.
+		</log>
+	</history>
+	<comments>
+	</comments>
+</extension>

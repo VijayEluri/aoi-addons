@@ -1,0 +1,62 @@
+<html>
+
+	<head>
+		<title>Advanced Curves Plugin</title>
+	</head>
+	
+	<body>
+		<center><h1>Advanced Curves v0.3</h1></center>
+		
+		<h1>Features</h1>
+		<p>
+			<ul>
+				<li>Introduction of a new object type: <b>AdvCurves</b>.</li>
+				<li>Remaining <b>backward compatibility</b> to existing curves - all existing curve tools can be used, i.e. Array, Tube, Lathe, Extrude, ...</li>
+				<li>AdvCurves are displayed with an unsmoothed <b>outline</b>: Straight lines from vertex to vertex.</li>
+				<li>Smoothed curves are subdivided more often to get a real smooth look.</li>
+				<li>AdvCurves are now created <b>completely</b> in their editor window using the new <b>Extend Curve Tool</b>.</li>
+				<li>Proper grid alignment.</li>
+				<li>Editor Window: A <b>context menu</b> containing all the functions in the common &quot;Curve&quot; menu.</li>
+				<li>An <b>arrow</b> is drawn at the end of the curve indicating its direction.</li>
+			</ul>
+		</p>
+		
+		<h1>Working with <b>AdvCurves</b></h1>
+		<h2>Creation</h2>
+		<p>After selecting the new create tool (<img src="gfx/CreateTool.png" border="0">), you can click anywhere in the scene - a new AdvCurve will then be created at this point. This is different to regular curves because you are not longer able to &quot;draw&quot; the curve directly in the scene. Instead, a <b>zero length</b> curve will be created. You are to edit this new object by double clicking on it in the objects list.</p>
+
+		<h2>How to draw the actual curve</h2>
+		<p>After you've opened the editor window, you will see the curve (or just a blank editor window if it's a new curve) and a new tool at the bottom of the toolbar: <img src="gfx/ExtendCurve.png" border="0"></p>
+
+		<p>This new tool allows you to add vertices to your curve at <b>any</b> time. You do not longer need to create new vertices by manually subdividing the curve. With an AdvCurve, you just select the <b>beginning</b> or <b>end</b> of your curve and make a click somewhere: A new vertex will be created at this particular point.</p>
+
+		<p>Since the common &quot;Subdivide Selection&quot; command has an influence on the positions of all selected vertices, the Extend Curve Tool allows you to insert vertices <b>somewhere on the curve</b>, too. Just select two nearby vertices and click somewhere. This will add a vertex at this particular point without altering any of the remaining vertices. Please note that you can't insert a new vertex &quot;between&quot; the very first and very last vertex of your curve (not even if you set the curve to be closed) unless there are only two vertices at all. The tool just wouldn't know where you would want to add the new vertex - before the first or after the last vertex? If you would like to extend your (probably closed) curve between start and end, you have to select only one of these two vertices and then add a new one.</p>
+
+		<p>Distances are handled the same way as it's done when creating bones. If you add a vertex in top view (for example), it will have the same Y-value as the vertex before it.</p>
+
+		<p>The very first and very last vertex of a curve is always highlighted for a better overview.</p>
+
+		<h2>Remarks on zero-length curves</h2>
+		<p>When adding a new AdvCurve to your scene, it will be empty. This means that there are no vertices at all.</p>
+		
+		<p>Please be aware that not all external tools check a curve's length - instead, they <b>may</b> assume a curve to have at least 2 points (otherwise it wouldn't be a &quot;curve&quot;). So, it <b>can</b> lead to an &quot;Alert!&quot; if you're trying to apply an external tool on an AdvCurve with less than 2 points.</p>
+		
+		<p>Thus, if you're a programmer and you plan to develop a new curve tool, you should always check a curve's length before working with it's vertices.</p>
+
+		<h2>Using the Grid</h2>
+		<p>New vertices created with the Extend Curve Tool are automatically aligned according to the current grid setting (see &quot;View&quot;, &quot;Grids...&quot;). Also, the curve itself during the initial creation is aligned according to the scene's grid settings.</p>
+
+		<p>If you want to align only some vertices on the grid, you have to select them and choose &quot;Curve&quot;, &quot;Align selected Points on Grid&quot;.</p>
+
+		<h2>Converting from and to regular curves</h2>
+		<p>Until now, AdvCurves do not have any new features - only their editing tools and display mechanism are changed. This means that you can convert any existing Curve into an AdvCurve and vice versa <b>without</b> losing any information. Just select the object you want to convert and choose &quot;Object&quot;, &quot;Convert Curve Type (Adv/Regular)&quot;.</p>
+
+		<p>You can also convert Tubes into AdvCurves. But be aware that you'll then loose the tube information (thickness).</p>
+
+		<h2>Using external scripts</h2>
+		<p>To external scripts, AdvCurves will appear as regular Curves as long as the script doesn't know about this new object type. Thus, scripts may convert AdvCurves to regular Curves automatically - but they all are supposed to work.</p>
+
+		<h2>Why showing an arrow at the end of the curve?</h2>
+		<p>When creating simple objects out of a curve (like a tube), you do not need to know where the curve starts and where it ends. But if you build an array, extrude another object along a curve, do skinning or whatever, it's rather useful if you <b>do</b> know the curves direction.</p>
+
+</html>

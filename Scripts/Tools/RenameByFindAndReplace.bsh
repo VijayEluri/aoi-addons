@@ -1,0 +1,127 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+
+<script>
+	<name>Rename by Find and Replace</name>
+	<author>TroY</author>
+	<version>1.0</version>
+	<date>2009-04-13</date>
+	<description>
+Allows you to rename multiple objects in a more comfortable way.
+
+Select nothing: All objects in the scene will be processed.
+Select some objects: Only those objects will be processed.
+
+See also: http://www.aoi-board.de/index.php?action=posts&fid=12&tid=446
+    </description>
+</script>
+*/
+
+Scene scene = window.getScene();
+
+// Counter value
+int globalCounter = 1;
+
+// Test whether a name matches
+boolean match(boolean doRegex, boolean doRegexWords, String haystack, String pattern)
+{
+	if (doRegex)
+	{
+		if (doRegexWords)
+			// "Use word boundaries" means: We don't want to match the whole name
+			// but only a single word of it. So, extend the pattern:
+			return haystack.matches(".*\\b" + pattern + "\\b.*");
+		else
+			return haystack.matches(pattern);
+	}
+	else
+		// Do literal matching
+		return haystack.contains(pattern);
+}
+
+// Do the replacing
+String replace(boolean doRegex, boolean doRegexWords, boolean doCounter, String oin, String matchstr, String replacement)
+{
+	if (doCounter)
+		replacement = replacement.replace("%c", Integer.toString(globalCounter++));
+
+	if (doRegex)
+	{
+		if (doRegexWords)
+			// In this case, "Use word boundaries" means: We don't want to replace
+			// the whole name but only a single word of it. As we do replacing here,
+			// we *MUST NOT* add the ".*" stuff! Otherwise, this would match the
+			// whole name.
+			return oin.replaceAll("\\b" + matchstr + "\\b", replacement);
+		else
+			return oin.replaceAll(matchstr, replacement);
+	}
+	else
+		// Do literal replacing
+		return oin.replace(matchstr, replacement);
+}
+
+// Fire up a little dialog
+BTextField match = new BTextField("<enter pattern here>");
+BTextField repla = new BTextField("<enter replacement here>");
+BCheckBox regexbox = new BCheckBox("Use regex matching", true);
+BCheckBox regexwords = new BCheckBox("Regex: Word boundaries", true);
+BCheckBox counterbox = new BCheckBox("Replace \"%c\" with a counter", true);
+BCheckBox drybox = new BCheckBox("Dry run", false);
+ComponentsDialog dlg = new ComponentsDialog(window, "Rename by Find and Replace", 
+		new Widget[] { match, repla, regexbox, regexwords, counterbox, drybox },
+		new String[] { "Pattern:", "Replace with:", "", "", "", "" });
+if (!dlg.clickedOk())
+	return;
+
+// Get stuff and decide where to search
+String matchstr = match.getText();
+String replastr = repla.getText();
+boolean doRegex = regexbox.getState();
+boolean doRegexWords = regexwords.getState();
+boolean doCounter = counterbox.getState();
+boolean dryRun = drybox.getState();
+ArrayList selected = new ArrayList();
+int[] selind = window.getSelectedIndices();
+
+if (selind.length > 0)
+{
+	// Test only selected objects
+	for (int i = 0; i < selind.length; i++)
+		if (match(doRegex, doRegexWords, scene.getObject(selind[i]).getName(), matchstr))
+			selected.add(new Integer(selind[i]));
+}
+else
+{
+	// Test all objects
+	int num = scene.getNumObjects();
+	for (int i = 0; i < num; i++)
+		if (match(doRegex, doRegexWords, scene.getObject(i).getName(), matchstr))
+			selected.add(new Integer(i));
+}
+
+// Now we have an ArrayList containing all our objects which *do* match
+// the pattern. We can do the replacing.
+print("Renaming:");
+for (Integer s : selected)
+{
+	ObjectInfo oi = scene.getObject(s);
+	String newname = replace(doRegex, doRegexWords, doCounter, oi.getName(), matchstr, replastr);
+
+	print("\"" + oi.getName() + "\" --> \"" + newname + "\"");
+
+	if (!dryRun)
+	{
+		if (!oi.getName().equals(newname))
+		{
+			window.setUndoRecord(new UndoRecord(window, false, UndoRecord.RENAME_OBJECT, new Object [] {s, oi.getName()}));
+
+			// .setObjectName() takes care of all repaint-stuff
+			window.setObjectName(s, newname);
+		}
+		else
+		{
+			print("\t... skipped, object name hasn't been changed.");
+		}
+	}
+}

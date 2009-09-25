@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<extension name="OFFTranslator" version="0.1">
+	<plugin class="artofillusion.translators.OFFTranslator"/>
+	<author>TroY</author>
+	<date>2008-10-30</date>
+	<description>
+OFF Translator
+	</description>
+	
+	<history>
+		<log version="0.1" date="30 Oct 2008" author="TroY">
+			initial release
+		</log>
+	</history>
+	<comments>
+	</comments>
+</extension>

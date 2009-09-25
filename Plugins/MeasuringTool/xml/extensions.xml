@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<extension name="MeasuringTool" version="0.2.3">
+	<plugin class="troy.measure.MeasurePlugin"/>
+	<author>TroY</author>
+	<date>2009-04-20</date>
+	<description>
+Measuring Tool
+	</description>
+	
+	<resource type="TranslateBundle" id="measure" name="measure"/>
+	<resource type="UITheme" id="measure" name="measure/theme.xml"/>
+	
+	<history>
+
+		<log version="0.2.3" date="20 Apr 2009" author="TroY">
+- Minor code change: Get object menu via getObjectMenu()
+		</log>
+
+		<log version="0.2.2" date="03 Dec 2008" author="TroY">
+Refresh for AoI 2.7ea2:
+- New icons
+- Fixed: Menu entries got added to the wrong menu
+
+Cleaned up this file (extensions.xml), so that the version history is
+actually readable from inside AoI...
+		</log>
+
+		<log version="0.2.1" date="15 Aug 2008" author="TroY">
+GPL stuff
+		</log>
+	
+		<log version="0.2" date="07 Jun 2008" author="TroY">
+- Hacked into "foreign" editor windows
+- Angle measuring
+- Circle with current radius
+		</log>
+ 
+		<log version="0.1" date="05 Jun 2008" author="TroY">
+Initial release. Introducing a tool to measure distances.
+	   </log>
+	</history>
+	<comments>
+	</comments>
+</extension>

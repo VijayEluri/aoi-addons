@@ -1,0 +1,62 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+
+<script>
+	<name>RegexSelect</name>
+	<author>TroY</author>
+	<version>1.1</version>
+	<date>2009-04-13</date>
+	<description>
+
+If one or more objects are selected, search this list for all objects that
+matches the given string. If no object is selected, search all objects in the
+scenes.
+
+See also: http://www.aoi-board.de/index.php?action=posts&fid=12&tid=446
+    </description>
+</script>
+*/
+
+Scene scene = window.getScene();
+
+// Used to convert an ArrayList to a common array (what's up with
+// Generics in BeanShell-Scripts?)
+int[] conv(ArrayList l)
+{
+	int[] out = new int[l.size()];
+	for (int i = 0; i < out.length; i++)
+		out[i] = l.get(i);
+	return out;
+}
+
+// Fire up a little dialog
+BTextField match = new BTextField("<enter pattern here>");
+ComponentsDialog dlg = new ComponentsDialog(window, "Regex select", 
+		new Widget[] { match },
+		new String[] { "Pattern:" });
+if (!dlg.clickedOk())
+	return;
+
+// Get stuff and decide where to search
+String matchstr = match.getText();
+ArrayList newsel = new ArrayList();
+int[] selind = window.getSelectedIndices();
+
+if (selind.length > 0)
+{
+	// Test only selected objects
+	for (int i = 0; i < selind.length; i++)
+		if (scene.getObject(selind[i]).getName().matches(matchstr))
+			newsel.add(new Integer(selind[i]));
+}
+else
+{
+	// Test all objects
+	int num = scene.getNumObjects();
+	for (int i = 0; i < num; i++)
+		if (scene.getObject(i).getName().matches(matchstr))
+			newsel.add(new Integer(i));
+}
+
+// Set new selection
+window.setSelection(conv(newsel));

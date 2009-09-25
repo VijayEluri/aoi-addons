@@ -1,0 +1,43 @@
+Tube makeTube(double dia, double thick)
+{
+	int points = 8;
+	double angle = (360.0 / points) * (Math.PI / 180.0);
+	Mat4 zrot = Mat4.xrotation(angle);
+	
+	Vec3 curpoint = new Vec3(0.0, dia, 0.0);
+	
+	Vec3[] pts = new Vec3[points];
+	
+	for (int i = 0; i < points; i++)
+	{
+		pts[i] = new Vec3(curpoint);
+		curpoint = zrot.times(curpoint);
+	}
+	
+	return new Tube(pts, thick, 3, 1);
+}
+
+void addTube(Tube obj, Vec3 origin)
+{
+	CoordinateSystem pos = new CoordinateSystem();
+	pos.setOrigin(origin);
+	script.addObject(obj, pos);
+}
+
+
+
+ScriptedObject myobject = script.getScene().getObject("Script").getObject();
+
+int count = myobject.getNumParameters();
+double thick = 0.1;
+double preamp = 10.0;
+double mindia = 0.1;
+
+for (int i = 0; i < count; i += 2)
+{
+	double thisamp = myobject.getParameterValue(i);
+
+	Tube a = makeTube(preamp * thisamp + 1.0 + mindia, thick);
+	Vec3 o = new Vec3(thick * i * 0.5, 0.0, 0.0);
+	addTube(a, o);
+}

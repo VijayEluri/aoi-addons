@@ -1,0 +1,43 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+
+<script>
+	<name>PrintCoordSys</name>
+	<author>TroY</author>
+	<version>1.0</version>
+	<date>2009-06-05</date>
+	<description>
+	Prints the coordinate systems of the selected objects.
+	</description>
+</script>
+*/
+
+Vec3 roundVec(Vec3 a)
+{
+	// Simply round very small values.
+	return new Vec3(
+		(Math.abs(a.x) < 1e-10 ? 0 : a.x),
+		(Math.abs(a.y) < 1e-10 ? 0 : a.y),
+		(Math.abs(a.z) < 1e-10 ? 0 : a.z)
+		);
+}
+
+Scene scene = window.getScene();
+int[] selind = window.getSelectedIndices();
+if (selind.length <= 0)
+{
+	print("Please select some objects.");
+	return;
+}
+
+for (int i = 0; i < selind.length; i++)
+{
+	// Print each X, Y and Z axis
+	ObjectInfo oi = scene.getObject(selind[i]);
+	Mat4 fromLocal = oi.getCoords().fromLocal();
+	print(oi.getName());
+	print("\tX: " + roundVec(fromLocal.timesDirection(Vec3.vx())));
+	print("\tY: " + roundVec(fromLocal.timesDirection(Vec3.vy())));
+	print("\tZ: " + roundVec(fromLocal.timesDirection(Vec3.vz())));
+	print("");
+}
