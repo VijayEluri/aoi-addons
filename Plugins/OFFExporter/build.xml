@@ -20,7 +20,7 @@
 	<property name="fileJar" location="${dirJar}/${ant.project.name}.jar" />
 	
 	<!-- AoI stuff -->
-	<property name="aoiJAR" value="../../ArtOfIllusion.jar" />
+	<property name="aoiJAR" value="../../jars/ArtOfIllusion.jar" />
 	
 	<!-- Additional files such as "plugins" -->
 	<property name="additionalFilesDir" value="xml" />

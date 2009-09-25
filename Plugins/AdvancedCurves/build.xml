@@ -22,7 +22,7 @@
 	<property name="manual_de" location="manual_de" />
 	
 	<!-- AoI stuff -->
-	<property name="aoiJAR" value="../../ArtOfIllusion.jar" />
+	<property name="aoiJAR" value="../../jars/ArtOfIllusion.jar" />
 	
 	<!-- Additional files such as "plugins" -->
 	<property name="additionalFilesDir" value="xml" />
