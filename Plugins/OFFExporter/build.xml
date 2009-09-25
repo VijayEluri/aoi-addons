@@ -80,4 +80,14 @@
 		<echo message="Finished" />
 	</target>
 
+	<!--
+		=================================
+		target: clean
+		=================================
+	-->
+	<target name="clean" description="--> Remove dist directory">
+		<echo message="Removing created files" />
+		<delete dir="${dirJar}" />
+	</target>
+
 </project>
