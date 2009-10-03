@@ -78,22 +78,22 @@ public class TilesModule extends Module
 			return 0.0;
 
 		// Parameters
-        double width = (linkFrom[3] == null) ? 0.1
+		double width = (linkFrom[3] == null) ? 0.1
 			: linkFrom[3].getAverageValue(linkFromIndex[3], blur);
 		width = (width <= 0.0 ? 0.1 : width);
 		width *= 0.5;
 
-        double scale = (linkFrom[4] == null) ? 4.0
+		double scale = (linkFrom[4] == null) ? 4.0
 			: linkFrom[4].getAverageValue(linkFromIndex[4], blur);
 		scale = (scale <= 0.0 ? 4.0 : scale);
 		scale *= 0.5;
 
 		// Position
-        double x = (linkFrom[0] == null) ? point.x
+		double x = (linkFrom[0] == null) ? point.x
 			: linkFrom[0].getAverageValue(linkFromIndex[0], blur);
-        double y = (linkFrom[1] == null) ? point.y
+		double y = (linkFrom[1] == null) ? point.y
 			: linkFrom[1].getAverageValue(linkFromIndex[1], blur);
-        double z = (linkFrom[2] == null) ? point.z
+		double z = (linkFrom[2] == null) ? point.z
 			: linkFrom[2].getAverageValue(linkFromIndex[2], blur);
 
 		// Scale it (before the shift).
