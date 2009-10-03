@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="yes"?>
+
+<extension name="TilesModule" version="0.1">
+	<author>TroY</author>
+	<date>2009-10-03</date>
+
+	<resource type="TranslateBundle" id="tilesmodule"
+		name="tilesmodule"/>
+	<plugin class="troy.procedural.TilesModule"/>
+
+	<description>
+		Generates tiles.
+	</description>
+
+	<history>
+		<log version="0.1" date="03 Oct 2009" author="TroY">
+Initial version.
+		</log>
+	</history>
+	<comments>
+	</comments>
+</extension>
