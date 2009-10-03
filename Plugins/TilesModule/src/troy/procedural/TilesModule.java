@@ -51,8 +51,8 @@ public class TilesModule extends Module
 					"(0.1)"}),
 			new IOPort(IOPort.NUMBER, IOPort.INPUT, IOPort.BOTTOM,
 				new String [] {
-					Translate.text("tilesmodule:caption.mode"),
-					"(0)"}),
+					Translate.text("tilesmodule:caption.scale"),
+					"(4.0)"}),
 		},
 		new IOPort [] {
 			new IOPort(IOPort.NUMBER, IOPort.OUTPUT, IOPort.RIGHT,
@@ -83,8 +83,10 @@ public class TilesModule extends Module
 		width = (width <= 0.0 ? 0.1 : width);
 		width *= 0.5;
 
-        boolean mode2d = (linkFrom[4] == null) ? false
-			: linkFrom[4].getAverageValue(linkFromIndex[4], blur) == 1.0;
+        double scale = (linkFrom[4] == null) ? 4.0
+			: linkFrom[4].getAverageValue(linkFromIndex[4], blur);
+		scale = (scale <= 0.0 ? 4.0 : scale);
+		scale *= 0.5;
 
 		// Position
         double x = (linkFrom[0] == null) ? point.x
@@ -93,6 +95,11 @@ public class TilesModule extends Module
 			: linkFrom[1].getAverageValue(linkFromIndex[1], blur);
         double z = (linkFrom[2] == null) ? point.z
 			: linkFrom[2].getAverageValue(linkFromIndex[2], blur);
+
+		// Scale it (before the shift).
+		x *= scale;
+		y *= scale;
+		z *= scale;
 
 		// Shift it a bit to get a better "default" experience
 		// (otherwise the preview cube would be all white).
@@ -105,9 +112,7 @@ public class TilesModule extends Module
 			return 1.0;
 		if (Math.abs(y - Math.floor(y)) <= width)
 			return 1.0;
-
-		// Don't test Z-axis if in 2D mode.
-		if (!mode2d && Math.abs(z - Math.floor(z)) <= width)
+		if (Math.abs(z - Math.floor(z)) <= width)
 			return 1.0;
 
 		return 0.0;
