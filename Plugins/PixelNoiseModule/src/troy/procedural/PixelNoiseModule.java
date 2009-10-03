@@ -89,18 +89,26 @@ public class PixelNoiseModule extends Module
 			return 0.0;
 
 		// Parameters
-        double scale = (linkFrom[3] == null) ? 4.0
+		double scale = (linkFrom[3] == null) ? 4.0
 			: linkFrom[3].getAverageValue(linkFromIndex[3], blur);
 		scale = (scale <= 0.0 ? 4.0 : scale);
+		scale *= 0.5;
 
-		// Decide in which unit cube we are, this is done by casting the
-		// real position to an integer.
-        long x = (long)((linkFrom[0] == null) ? point.x * scale
-			: linkFrom[0].getAverageValue(linkFromIndex[0], blur) * scale);
-        long y = (long)((linkFrom[1] == null) ? point.y * scale
-			: linkFrom[1].getAverageValue(linkFromIndex[1], blur) * scale);
-        long z = (long)((linkFrom[2] == null) ? point.z * scale
-			: linkFrom[2].getAverageValue(linkFromIndex[2], blur) * scale);
+		// Decide in which unit cube we are, this is done via Math.ceil.
+		double dx = (linkFrom[0] == null) ? point.x
+			: linkFrom[0].getAverageValue(linkFromIndex[0], blur);
+		double dy = (linkFrom[1] == null) ? point.y
+			: linkFrom[1].getAverageValue(linkFromIndex[1], blur);
+		double dz = (linkFrom[2] == null) ? point.z
+			: linkFrom[2].getAverageValue(linkFromIndex[2], blur);
+
+		dx *= scale;
+		dy *= scale;
+		dz *= scale;
+
+		long x = (long)Math.ceil(dx);
+		long y = (long)Math.ceil(dy);
+		long z = (long)Math.ceil(dz);
 
 		// So, how do we get a random value that doesn't change for
 		// every run? --> Use the position as a random seed.
