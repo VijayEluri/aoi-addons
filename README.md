@@ -42,5 +42,5 @@ and their names will contain the current date (something like
 Contact
 -------
 
-[German AoI Board](http://www.aoi-board.de/)
-[FriendlySkies Forum](http://www.friendlyskies.net/aoiforum/)
+* [German AoI Board](http://www.aoi-board.de/)
+* [FriendlySkies Forum](http://www.friendlyskies.net/aoiforum/)
