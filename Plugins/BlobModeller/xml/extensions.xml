@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<extension name="BlobModeller" version="0.1">
+	<plugin class="troy.blob.BlobPlugin"/>
+	<author>TroY</author>
+	<date>2009-12-01</date>
+	<description>
+		A blob modeller.
+	</description>
+
+	<history>
+		<log version="0.1" date="01 Dec 2009" author="TroY">
+			Initial release.
+		</log>
+	</history>
+	<comments>
+	</comments>
+</extension>
