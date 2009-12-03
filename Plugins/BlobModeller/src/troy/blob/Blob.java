@@ -20,11 +20,9 @@ public class Blob extends ImplicitObject
 
 	// Properites
 	private static final Property[] PROPERTIES = {
-		new Property("Cutoff", 0, Double.MAX_VALUE, 1),
 		new Property("Hardness", 1, Double.MAX_VALUE, 1)
 	};
 
-	private double cutoff = 1.0;
 	private double hardness = 1.0;
 	private ArrayList<Charge> charges = new ArrayList<Charge>();
 
@@ -53,13 +51,16 @@ public class Blob extends ImplicitObject
 			d3 = (c.z - z);
 
 			// Calculate value.
+			// Actually, this is:  weight * (1.0 / distance)
+			// But we start with the square of it to save the
+			// calculation of a square root.
 			val = (c.w*c.w) / (d1*d1 + d2*d2 + d3*d3);
 
 			// This charge's "hardness".
 			val = Math.pow(val, hardness);
 
-			// Prevent division by zero.
-			if (val < 1e-10)
+			// Revert divisions by zero and the like.
+			if (Double.isNaN(val) || Double.isInfinite(val))
 				continue;
 
 			// Additive or subtractive charge.
@@ -75,7 +76,7 @@ public class Blob extends ImplicitObject
 	@Override
 	public double getCutoff()
 	{
-		return cutoff;
+		return 1.0;
 	}
 
 	@Override
@@ -180,8 +181,6 @@ public class Blob extends ImplicitObject
 		switch (index)
 		{
 			case 0:
-				return cutoff;
-			case 1:
 				return hardness;
 		}
 		return null;
@@ -193,9 +192,6 @@ public class Blob extends ImplicitObject
 		switch (index)
 		{
 			case 0:
-				cutoff = (Double)value;
-				return;
-			case 1:
 				hardness = (Double)value;
 				cachedBounds = null;
 				return;
