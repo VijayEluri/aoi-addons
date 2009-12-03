@@ -19,10 +19,13 @@ public class Blob extends ImplicitObject
 	}
 
 	// Properites
-	private static final Property[] PROPERTIES
-		= { new Property("Cutoff", 0, Double.MAX_VALUE, 1) };
+	private static final Property[] PROPERTIES = {
+		new Property("Cutoff", 0, Double.MAX_VALUE, 1),
+		new Property("Hardness", 1, Double.MAX_VALUE, 1)
+	};
 
 	private double cutoff = 1.0;
+	private double hardness = 1.0;
 	private ArrayList<Charge> charges = new ArrayList<Charge>();
 
 	static BoundingBox   nullBounds = null;
@@ -47,14 +50,30 @@ public class Blob extends ImplicitObject
 			double size, double time)
 	{
 		double sum = 0.0, d1, d2, d3;
+		double val;
 
 		for (Charge c : charges)
 		{
+			// Distances.
 			d1 = (c.x - x);
 			d2 = (c.y - y);
 			d3 = (c.y - z);
 
-			sum += (c.w * c.w) / (d1*d1 + d2*d2 + d3*d3);
+			// Calculate value.
+			val = (c.w*c.w) / (d1*d1 + d2*d2 + d3*d3);
+
+			// This charge's "hardness".
+			val = Math.pow(val, hardness);
+
+			// Prevent division by zero.
+			if (val < 1e-10)
+				continue;
+
+			// Additive or subtractive charge.
+			if (c.w >= 0.0)
+				sum += val;
+			else
+				sum -= val;
 		}
 
 		return sum;
@@ -137,6 +156,8 @@ public class Blob extends ImplicitObject
 		{
 			case 0:
 				return cutoff;
+			case 1:
+				return hardness;
 		}
 		return null;
 	}
@@ -148,6 +169,9 @@ public class Blob extends ImplicitObject
 		{
 			case 0:
 				cutoff = (Double)value;
+				return;
+			case 1:
+				hardness = (Double)value;
 				return;
 		}
 	}
