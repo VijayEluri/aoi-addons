@@ -28,15 +28,8 @@ public class Blob extends ImplicitObject
 	private double hardness = 1.0;
 	private ArrayList<Charge> charges = new ArrayList<Charge>();
 
-	static BoundingBox   nullBounds = null;
-	static WireframeMesh cachedWire = null;
-
-	static
-	{
-		// TODO: Add real AABB
-		double r = 2.0;
-		nullBounds = new BoundingBox(-r, r, -r, r, -r, r);
-	}
+	static BoundingBox   cachedBounds = null;
+	static WireframeMesh cachedWire   = null;
 
 	public Blob()
 	{
@@ -94,7 +87,39 @@ public class Blob extends ImplicitObject
 	@Override
 	public BoundingBox getBounds()
 	{
-		return nullBounds;
+		// If there are no charges, return an empty box.
+		if (charges.size() <= 0)
+			return new BoundingBox(0, 0, 0, 0, 0, 0);
+
+		if (cachedBounds == null)
+		{
+			// Start with the box of the first charge.
+			Charge c = charges.get(0);
+			double ext = Math.abs(c.w);
+			double corr = 1.0 + (0.1 / hardness);  // see note
+			cachedBounds = new BoundingBox(
+				new Vec3(c.x - ext, c.y - ext, c.z - ext).times(corr),
+				new Vec3(c.x + ext, c.y + ext, c.z + ext).times(corr));
+
+			// A note on "corr":
+			// As blobs are blobby, we can't use their weight/radius
+			// directly. This would result in unwanted cut-off's. To
+			// correct this, we extend the bounding box of a charge "a
+			// bit". That "bit" can be smaller if the charge is harder.
+
+			// Iteratively add the remaining charges.
+			for (int i = 1; i < charges.size(); i++)
+			{
+				c = charges.get(i);
+				ext = Math.abs(c.w);
+				corr = 1.0 + (0.1 / hardness);
+				cachedBounds.extend(new BoundingBox(
+					new Vec3(c.x - ext, c.y - ext, c.z - ext).times(corr),
+					new Vec3(c.x + ext, c.y + ext, c.z + ext).times(corr)));
+			}
+		}
+
+		return cachedBounds;
 	}
 
 	@Override
@@ -172,6 +197,7 @@ public class Blob extends ImplicitObject
 				return;
 			case 1:
 				hardness = (Double)value;
+				cachedBounds = null;
 				return;
 		}
 	}
