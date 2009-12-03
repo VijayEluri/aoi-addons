@@ -57,7 +57,7 @@ public class Blob extends ImplicitObject
 			// Distances.
 			d1 = (c.x - x);
 			d2 = (c.y - y);
-			d3 = (c.y - z);
+			d3 = (c.z - z);
 
 			// Calculate value.
 			val = (c.w*c.w) / (d1*d1 + d2*d2 + d3*d3);
