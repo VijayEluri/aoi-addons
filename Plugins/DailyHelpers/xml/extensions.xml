@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 
-<extension name="DailyHelpers" version="0.5">
+<extension name="DailyHelpers" version="0.5.1">
 	<plugin class="troy.generic.DailyHelpersPlugin"/>
 	<plugin class="troy.generic.EditingPanel"/>
 	<author>TroY</author>
-	<date>2009-04-14</date>
+	<date>2009-12-18</date>
 	<description>
 	Daily Helpers, automatic adjustments:
 		- Maximize new main windows
@@ -29,6 +29,10 @@
 	<category class="artofillusion.preferences.PreferencesEditor"/>
 
 	<history>
+		<log version="0.5.1" date="18 Dec 2009" author="TroY">
+			Changed default settings: No options are activated.
+		</log>
+
 		<log version="0.5" date="14 Apr 2009" author="TroY">
 			Added AutoSave
 		</log>
