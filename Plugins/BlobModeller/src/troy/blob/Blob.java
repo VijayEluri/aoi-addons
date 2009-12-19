@@ -6,6 +6,7 @@ import artofillusion.object.*;
 import artofillusion.math.*;
 
 import java.util.*;
+import java.io.*;
 
 public class Blob extends ImplicitObject
 {
@@ -29,7 +30,7 @@ public class Blob extends ImplicitObject
 	};
 
 	private double hardness = 2.0;
-	private ArrayList<Charge> charges = new ArrayList<Charge>();
+	protected ArrayList<Charge> charges = new ArrayList<Charge>();
 
 	private Scene theScene = null;
 	private String setNamePositive = "p";
@@ -37,11 +38,63 @@ public class Blob extends ImplicitObject
 	private String setNameNegative = "n";
 	private ObjectSet setNegative = null;
 
-	static BoundingBox   cachedBounds = null;
-	static WireframeMesh cachedWire   = null;
+	protected static BoundingBox   cachedBounds = null;
+	protected static WireframeMesh cachedWire   = null;
+
+	protected static final int VERSION = 1;
 
 	public Blob()
 	{
+	}
+
+	public Blob(DataInputStream in, Scene theScene)
+		throws IOException, InvalidObjectException
+	{
+		super(in, theScene);
+
+		int version = in.readInt();
+		if (version != VERSION)
+		{
+			throw new InvalidObjectException(
+					"Unsupported object version: " + version);
+		}
+
+		// Hardness.
+		setPropertyValue(0, in.readDouble());
+
+		// setNamePositive.
+		int len = in.readInt();
+		byte[] str = new byte[len];
+		in.readFully(str);
+		setPropertyValue(1, new String(str));
+
+		// setNameNegative.
+		len = in.readInt();
+		str = new byte[len];
+		in.readFully(str);
+		setPropertyValue(2, new String(str));
+	}
+
+	@Override
+	public void writeToFile(DataOutputStream out, Scene theScene)
+		throws IOException
+	{
+		super.writeToFile(out, theScene);
+
+		out.writeInt(VERSION);
+
+		// Hardness.
+		out.writeDouble((Double)getPropertyValue(0));
+
+		// setNamePositive.
+		String str = (String)getPropertyValue(1);
+		out.writeInt(str.length());
+		out.writeBytes(str);
+
+		// setNameNegative.
+		str = (String)getPropertyValue(2);
+		out.writeInt(str.length());
+		out.writeBytes(str);
 	}
 
 	/**
@@ -303,21 +356,35 @@ public class Blob extends ImplicitObject
 		}
 	}
 
-	// -- Stubs
 	@Override
-	public void applyPoseKeyframe(Keyframe k)
+	public void copyObject(Object3D obj)
 	{
-	}
+		if (!(obj instanceof Blob))
+			return;
 
-	@Override
-	public void copyObject(Object3D o)
-	{
+		Blob o = (Blob)obj;
+
+		charges = new ArrayList<Charge>(o.charges);
+
+		cachedBounds = null;
+		cachedWire   = null;
+
+		for (int i = 0; i < PROPERTIES.length; i++)
+			setPropertyValue(i, o.getPropertyValue(i));
 	}
 
 	@Override
 	public Object3D duplicate()
 	{
-		return null;
+		Blob copy = new Blob();
+		copy.copyObject(this);
+		return copy;
+	}
+
+	// -- Stubs
+	@Override
+	public void applyPoseKeyframe(Keyframe k)
+	{
 	}
 
 	@Override
