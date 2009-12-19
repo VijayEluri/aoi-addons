@@ -12,28 +12,117 @@ public class Blob extends ImplicitObject
 	public class Charge
 	{
 		public double x, y, z, w;
-		public Charge(double a, double b, double c, double d)
+		public Charge(Vec3 pos, double q)
 		{
-			x = a; y = b; z = c; w = d;
+			x = pos.x;
+			y = pos.y;
+			z = pos.z;
+			w = q;
 		}
 	}
 
 	// Properites
 	private static final Property[] PROPERTIES = {
-		new Property("Hardness", 1, Double.MAX_VALUE, 1)
+		new Property("Hardness", 1, Double.MAX_VALUE, 2),
+		new Property("setNamePositive", "p"),
+		new Property("setNameNegative", "n")
 	};
 
-	private double hardness = 1.0;
+	private double hardness = 2.0;
 	private ArrayList<Charge> charges = new ArrayList<Charge>();
+
+	private Scene theScene = null;
+	private String setNamePositive = "p";
+	private ObjectSet setPositive = null;
+	private String setNameNegative = "n";
+	private ObjectSet setNegative = null;
 
 	static BoundingBox   cachedBounds = null;
 	static WireframeMesh cachedWire   = null;
 
 	public Blob()
 	{
-		charges.add(new Charge(-0.75, 0, 0, 0.5));
-		charges.add(new Charge(0.75, 0, 0, 0.5));
-		charges.add(new Charge(0.0, 0.5, 0.0, 0.25));
+	}
+
+	/**
+	 * Update local information from the scene. It's important that this
+	 * method is synchronized because we get
+	 * ConcurrentModificationException's during rendering otherwise.
+	 *
+	 * This method is called from sceneChanged().
+	 */
+	protected synchronized void updateCharges(Scene theScene)
+	{
+		// Clear cached infos.
+		cachedBounds = null;
+		cachedWire   = null;
+		charges.clear();
+
+		setPositive = null;
+		setNegative = null;
+
+		// Get all selection sets.
+		Object layersObj =
+			theScene.getMetadata("selectionsPlugin.selectionSets");
+
+		if (layersObj == null)
+			return;
+
+		if (!(layersObj instanceof ArrayList))
+			return;
+
+		ArrayList<ObjectSet> layers = (ArrayList<ObjectSet>)layersObj;
+
+		// Try to find those which are of interest for us.
+		for (ObjectSet set : layers)
+		{
+			if (set.getName().equals(setNamePositive))
+			{
+				setPositive = set;
+			}
+			else if (set.getName().equals(setNameNegative))
+			{
+				setNegative = set;
+			}
+		}
+
+		// Create charges.
+		if (setPositive != null)
+		{
+			for (ObjectInfo oi : setPositive.getObjects(theScene))
+			{
+				if (oi.getObject() instanceof Sphere)
+				{
+					Sphere s = (Sphere)oi.getObject();
+					double q = s.getRadii().x;
+					Vec3 pos = oi.getCoords().getOrigin();
+
+					charges.add(new Charge(pos, q));
+				}
+			}
+		}
+
+		if (setNegative != null)
+		{
+			for (ObjectInfo oi : setNegative.getObjects(theScene))
+			{
+				if (oi.getObject() instanceof Sphere)
+				{
+					Sphere s = (Sphere)oi.getObject();
+					double q = -s.getRadii().x;
+					Vec3 pos = oi.getCoords().getOrigin();
+
+					charges.add(new Charge(pos, q));
+				}
+			}
+		}
+	}
+
+	@Override
+	public void sceneChanged(ObjectInfo info, Scene scene)
+	{
+		updateCharges(scene);
+		scene.objectModified(this);
 	}
 
 	@Override
@@ -136,6 +225,12 @@ public class Blob extends ImplicitObject
 		int[] from  = new int[0];
 		int[] to    = new int[0];
 
+		if (charges.size() <= 0)
+		{
+			cachedWire = new NullObject().getWireframeMesh();
+			return cachedWire;
+		}
+
 		for (Charge c : charges)
 		{
 			double rad = c.w;
@@ -182,6 +277,10 @@ public class Blob extends ImplicitObject
 		{
 			case 0:
 				return hardness;
+			case 1:
+				return setNamePositive;
+			case 2:
+				return setNameNegative;
 		}
 		return null;
 	}
@@ -194,6 +293,12 @@ public class Blob extends ImplicitObject
 			case 0:
 				hardness = (Double)value;
 				cachedBounds = null;
+				return;
+			case 1:
+				setNamePositive = (String)value;
+				return;
+			case 2:
+				setNameNegative = (String)value;
 				return;
 		}
 	}
@@ -224,5 +329,6 @@ public class Blob extends ImplicitObject
 	@Override
 	public void setSize(double xsize, double ysize, double zsize)
 	{
+		// This object is not resizable.
 	}
 }
