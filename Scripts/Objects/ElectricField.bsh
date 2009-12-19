@@ -1,0 +1,215 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+<!--  xml header for scripts & plugin manager -->
+<script>
+	<name>Electric Field</name>
+	<author>TroY</author>
+	<version>0.1</version>
+	<date>2009-12-19</date>
+	<description>
+Tries to visualize an electric field.
+
+Use SelectionSets to define the charges:
+- One set for positive charges and one for the negative ones.
+- Each sphere in a set will become a charge.
+- There's a special "probes set". Each mesh in this set will become a
+  "probe mesh". Each vertex of a probe mesh will generate a "trace".
+
+If set, a Procedural3D-Texture will be applied to each trace. Have a
+look at the parametric hair script on how to use this feature.
+	</description>
+	<comments>
+	</comments>
+</script>
+*/
+
+
+String setNamePositive = "p";
+String setNameNegative = "n";
+String setNameProbes   = "pr";
+
+double traceThickness = 0.04;
+int stepsPerTrace = 3000;
+double stepClip = 5e-2;
+
+double fuzz = 0.05; // 0.0 = deactivated
+long randomSeed = 0;
+
+String parametricTextureName = "parametr"; // null = deactivated
+
+// End of user settings.
+// ---
+
+Vec3 evalFieldAt(Vec3 pos, double q)
+{
+	Vec3 out = new Vec3(0, 0, 0);
+
+	// Make use of globally defined variables...
+	for (ObjectInfo oi : setPositive.getObjects(scene))
+	{
+		double radius = ((Sphere)oi.getObject()).getRadii().x;
+
+		// Coulomb's law.
+		Vec3 dist = pos.minus(oi.getCoords().getOrigin());
+		double len = dist.length();
+		if (len > radius)
+		{
+			// Use the radius as the charge's charge.
+			dist.scale(radius / (len * len * len));
+			out.add(dist);
+		}
+		else
+			return null; // Charge hit.
+	}
+
+	for (ObjectInfo oi : setNegative.getObjects(scene))
+	{
+		double radius = ((Sphere)oi.getObject()).getRadii().x;
+
+		Vec3 dist = pos.minus(oi.getCoords().getOrigin());
+		double len = dist.length();
+		if (len > radius)
+		{
+			dist.scale(radius / (len * len * len));
+			out.subtract(dist);
+		}
+		else
+			return null;
+	}
+
+	out.scale(q);
+
+	return out;
+}
+
+Vec3[] doTrace(Vec3 start, double q, int steps)
+{
+	Vec3[] out = new Vec3[steps + 1];
+	out[0] = start;
+
+	for (int i = 0; i < steps; i++)
+	{
+		Vec3 dir = evalFieldAt(out[i], q);
+		if (dir == null)
+		{
+			// We got very close to a probe. Stop tracing.
+			if (i == 0)
+				return null;
+
+			Vec3[] realOut = new Vec3[i - 1];
+			System.arraycopy(out, 0, realOut, 0, realOut.length);
+			return realOut;
+		}
+
+		// Clip.
+		double len = dir.length();
+		if (len > stepClip)
+		{
+			dir.normalize();
+			dir.scale(stepClip);
+		}
+
+		out[i + 1] = out[i].plus(dir);
+	}
+
+	return out;
+}
+
+// Get charges via SelectionSets.
+Scene scene = window.getScene();
+layers = scene.getMetadata("selectionsPlugin.selectionSets");
+
+ObjectSet setPositive = null;
+ObjectSet setNegative = null;
+ObjectSet setProbes   = null;
+for (ObjectSet set : layers)
+{
+	if (set.getName().equals(setNamePositive))
+	{
+		setPositive = set;
+	}
+	else if (set.getName().equals(setNameNegative))
+	{
+		setNegative = set;
+	}
+	else if (set.getName().equals(setNameProbes))
+	{
+		setProbes = set;
+	}
+}
+
+if (setPositive == null && setNegative == null)
+{
+	print("Error: Neither positive nor negative charges defined.");
+	return;
+}
+
+if (setProbes == null)
+{
+	print("Error: No set for the probe meshes defined.");
+	return;
+}
+
+// Go through all the objects in the probe set.
+Random rGen = new Random(randomSeed);
+for (ObjectInfo poi : setProbes.getObjects(scene))
+{
+	Object3D pobj = poi.getObject();
+	if (!(pobj instanceof Mesh))
+		continue;
+
+	Mesh probeMesh = (Mesh)pobj;
+
+	// Send out a probe for each vertex in the mesh.
+	Mat4 trans = poi.getCoords().fromLocal();
+	for (Vec3 v : probeMesh.getVertexPositions())
+	{
+		Vec3 first = trans.times(v);
+		if (fuzz != 0.0)
+		{
+			first.add(new Vec3(rGen.nextGaussian() * fuzz,
+						rGen.nextGaussian() * fuzz,
+						rGen.nextGaussian() * fuzz));
+		}
+
+		Vec3[] trace = doTrace(first, 1.0, stepsPerTrace);
+
+		if (trace != null)
+		{
+			Tube tubeTrace =
+						new Tube(trace, traceThickness, Tube.NO_SMOOTHING,
+							Tube.FLAT_ENDS);
+
+			// If set, use the given parametric texture to color this
+			// trace. This will result in a linear gradient.
+			if (parametricTextureName != null)
+			{
+				// Set texture
+				Texture tex = script.getScene().getTexture(
+						parametricTextureName);
+				tubeTrace.setTexture(tex,
+						new LinearMapping3D(tubeTrace, tex));
+
+				// Get texture parameter: hsColor
+				TextureParameter hsColor = tex.getParameters()[0];
+
+				// Build new parameter object
+				VertexParameterValue vparam =
+					new VertexParameterValue(tubeTrace, hsColor);
+				int max = vparam.getValue().length;
+				double[] newvals = new double[max];
+				for (int i = 0; i < max; i++)
+				{
+					newvals[i] = (double)i / max;
+				}
+				vparam.setValue(newvals);
+
+				// Now set the new parameters
+				tubeTrace.setParameterValue(hsColor, vparam);
+			}
+
+			// Add this very tube.
+			script.addObject(tubeTrace, new CoordinateSystem());
+		}
+	}
+}
