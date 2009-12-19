@@ -10,18 +10,6 @@ import java.io.*;
 
 public class Blob extends ImplicitObject
 {
-	public class Charge
-	{
-		public double x, y, z, w;
-		public Charge(Vec3 pos, double q)
-		{
-			x = pos.x;
-			y = pos.y;
-			z = pos.z;
-			w = q;
-		}
-	}
-
 	// Properites
 	private static final Property[] PROPERTIES = {
 		new Property("Hardness", 1, Double.MAX_VALUE, 2),
@@ -150,7 +138,7 @@ public class Blob extends ImplicitObject
 					double q = s.getRadii().x;
 					Vec3 pos = oi.getCoords().getOrigin();
 
-					charges.add(new Charge(pos, q));
+					charges.add(new SphereCharge(pos, q));
 				}
 			}
 		}
@@ -165,7 +153,7 @@ public class Blob extends ImplicitObject
 					double q = -s.getRadii().x;
 					Vec3 pos = oi.getCoords().getOrigin();
 
-					charges.add(new Charge(pos, q));
+					charges.add(new SphereCharge(pos, q));
 				}
 			}
 		}
@@ -182,21 +170,19 @@ public class Blob extends ImplicitObject
 	public double getFieldValue(double x, double y, double z,
 			double size, double time)
 	{
-		double sum = 0.0, d1, d2, d3;
+		double sum = 0.0, dist;
 		double val;
 
 		for (Charge c : charges)
 		{
 			// Distances.
-			d1 = (c.x - x);
-			d2 = (c.y - y);
-			d3 = (c.z - z);
+			dist = c.getDist(x, y, z);
 
 			// Calculate value.
 			// Actually, this is:  weight * (1.0 / distance)
 			// But we start with the square of it to save the
 			// calculation of a square root.
-			val = (c.w*c.w) / (d1*d1 + d2*d2 + d3*d3);
+			val = (c.w*c.w) / dist;
 
 			// This charge's "hardness".
 			val = Math.pow(val, hardness);
