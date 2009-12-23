@@ -35,7 +35,7 @@ double stepClip = 5e-2;
 double fuzz = 0.05; // 0.0 = deactivated
 long randomSeed = 0;
 
-String parametricTextureName = "parametr"; // null = deactivated
+String parametricTextureName = null; // null = deactivated
 
 // End of user settings.
 // ---
