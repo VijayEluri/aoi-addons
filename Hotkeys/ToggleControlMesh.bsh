@@ -1,0 +1,6 @@
+if (!(window instanceof LayoutWindow))
+{
+	window.getView().setMeshVisible(!window.getView().getMeshVisible());
+	window.getView().repaint();
+	window.updateMenus();
+}

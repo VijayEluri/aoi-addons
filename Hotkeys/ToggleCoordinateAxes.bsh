@@ -1,0 +1,19 @@
+if (window instanceof LayoutWindow || window instanceof ObjectEditorWindow)
+{
+	Boolean oldValue = null;
+	for (ViewerCanvas v : window.getAllViews())
+	{
+		if (v != null)
+		{
+			if (oldValue == null)
+			{
+				oldValue = v.getShowAxes();
+			}
+
+			v.setShowAxes(!oldValue);
+			v.repaint();
+		}
+	}
+
+	window.updateMenus();
+}

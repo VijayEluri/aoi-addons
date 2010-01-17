@@ -1,0 +1,6 @@
+if (!(window instanceof LayoutWindow))
+{
+	window.getView().setSceneVisible(!window.getView().getSceneVisible());
+	window.getView().repaint();
+	window.updateMenus();
+}

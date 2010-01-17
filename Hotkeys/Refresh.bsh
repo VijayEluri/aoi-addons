@@ -1,0 +1,20 @@
+// Forced re-evaluation of time.
+// (We can't avoid doing it twice since some objects may cache "lastTime"
+//  and we can't reset this value.)
+now = window.getScene().getTime();
+window.getScene().setTime(now + 1.0);
+window.getScene().setTime(now);
+
+// The following only applies to AoI's main windows.
+if (window instanceof LayoutWindow)
+{
+	// Rebuild the TreeList of objects.
+	window.rebuildItemList();
+
+	// Rebuild the list of tool scripts in the Tools menu.
+	window.rebuildScriptsMenu();
+}
+
+// Display.
+window.updateImage();
+window.updateMenus();
