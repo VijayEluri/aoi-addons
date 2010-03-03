@@ -16,6 +16,7 @@ import artofillusion.*;
 import artofillusion.object.*;
 import artofillusion.math.*;
 import artofillusion.ui.*;
+import buoy.widget.*;
 import buoy.event.WidgetMouseEvent;
 
 /**
@@ -66,7 +67,33 @@ public class CreateAdvCurve extends EditingTool
 	@Override
 	public void iconDoubleClicked()
 	{
-		new CreateAdvCurveDialog(this, (LayoutWindow)theWindow);
+		BComboBox smoothingChoice = new BComboBox(new String [] {
+			Translate.text("Angled"),
+			Translate.text("Interpolating"),
+			Translate.text("Approximating")
+		});
+
+		if (currentSmoothingMethod == Mesh.NO_SMOOTHING)
+			smoothingChoice.setSelectedIndex(0);
+		else if (currentSmoothingMethod == Mesh.INTERPOLATING)
+			smoothingChoice.setSelectedIndex(1);
+		else
+			smoothingChoice.setSelectedIndex(2);
+
+		ComponentsDialog dlg = new ComponentsDialog(theFrame,
+			Translate.text("selectCurveSmoothing"),
+			new Widget [] {smoothingChoice},
+			new String [] {Translate.text("Smoothing Method")});
+
+		if (!dlg.clickedOk())
+			return;
+
+		if (smoothingChoice.getSelectedIndex() == 0)
+			currentSmoothingMethod = Mesh.NO_SMOOTHING;
+		else if (smoothingChoice.getSelectedIndex() == 1)
+			currentSmoothingMethod = Mesh.INTERPOLATING;
+		else
+			currentSmoothingMethod = Mesh.APPROXIMATING;
 	}
 	
 	/** Get Smoothing Method */
