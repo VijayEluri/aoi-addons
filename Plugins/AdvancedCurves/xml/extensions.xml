@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<extension name="AdvancedCurves" version="0.3.5">
+<extension name="AdvancedCurves" version="0.3.6">
 	<plugin class="troy.advcurves.AdvCurvesPlugin"/>
 	<author>TroY</author>
 	<date>2009-04-20</date>
@@ -14,6 +14,12 @@ Advanced Curves
 	<resource type="help" id="AdvancedCurves" name="manual_de/HelpSet_de.hs" locale="DE" />
 	
 	<history>
+		<log version="0.3.6" date="03 Mar 2009" author="TroY">
+UNRELEASED:
+
+- Setting initial smoothness: Replaced custom dialog with stock dialog.
+		</log>
+
 		<log version="0.3.5" date="20 Apr 2009" author="TroY">
 - "Oops": getSceneMenu != getObjectMenu :)
 		</log>
