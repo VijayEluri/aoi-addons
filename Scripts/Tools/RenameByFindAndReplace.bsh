@@ -9,8 +9,10 @@
 	<description>
 Allows you to rename multiple objects in a more comfortable way.
 
-Select nothing: All objects in the scene will be processed.
+
+Select nothing: All objects in the scene will be processed. 
 Select some objects: Only those objects will be processed.
+
 
 See also: http://www.aoi-board.de/index.php?action=posts&amp;fid=12&amp;tid=446
     </description>

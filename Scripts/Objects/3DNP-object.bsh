@@ -10,25 +10,32 @@
 This script alters the cameras orientation to produce a series of images
 that's ready to be displayed by 3DNP:
 
+
 http://thoro.de/portfolio/verschiedenes/3DNP.html
+
 
 In this version, the cameras orientation AND position is altered! It's
 being moved on a sphere around a fixed center. The result is, that you
 can "grab" your object and rotate it.
+
 
 Do not forget to edit the variable "levels" in this script. It's the
 amount of levels you can look up and down. So, if you set levels to "9",
 you'll get 4 levels of looking up, 4 of looking down and one level looking
 straight ahead.
 
+
 Note: "levels" defines the amount of seconds you'll have to render. So
 if you set it to 9, you'll have to render 9 seconds.
+
 
 The variables "oX", "oY" and "oZ" define the spheres center. "r" defines
 the cams distance from this center.
 
+
 Be sure to rename your camera to "3DNPCam" - otherwise the script can't
 find it.
+
 
 See also: http://www.aoi-board.de/index.php?action=posts&amp;fid=11&amp;tid=81
     </description>

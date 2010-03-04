@@ -6,21 +6,21 @@
 	<author>TroY</author>
 	<date>2009-12-18</date>
 	<description>
-	Daily Helpers, automatic adjustments:
-		- Maximize new main windows
-		- Activate "Show Grid"
-		- Activate "Snap To Grid"
-		- Reset ambient color to black
-		- Kill the initial directional light
-		- Alter the camera for a better view
-	
-	AutoBackup facility:
-		- Whenever you save a scene, a copy of this newly saved scene is created
-	
-	AutoSave facility:
-		- Well, yes. An AutoSave-feature. :-)
+Daily Helpers, automatic adjustments: 
+	- Maximize new main windows 
+	- Activate "Show Grid" 
+	- Activate "Snap To Grid" 
+	- Reset ambient color to black 
+	- Kill the initial directional light 
+	- Alter the camera for a better view  
 
-	Use "Edit", "Plugin Preferences" to change this settings!
+AutoBackup facility: 
+	- Whenever you save a scene, a copy of this newly saved scene is created  
+
+AutoSave facility: 
+	- Well, yes. An AutoSave-feature. :-)  
+
+Use "Edit", "Plugin Preferences" to change this settings!
 	</description>
 
 	<import name="PreferencesPlugin"/>

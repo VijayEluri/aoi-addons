@@ -9,11 +9,14 @@
 	<description>
 This script puts hair on the object named hairy. There must be an object in your scene named "hairy."
 
+
 The hair will grow from each vertex on the object. Multiple hairs can grow from each vertex by
 increasing the value of the hairs variable. If there are multiple hairs at a vertex, their spread
 can be increased by increasing the value of maxSep. It's a good idea to make the new script object a child of the "hairy" object so that they move and rotate together easily.
 
+
 Parametric extension:
+
 
 A per-vertex mapped texture for each hair. This allows you to set the
 hair's color from its start to its end. The parameter "hsColor" of a
@@ -21,7 +24,9 @@ texture named "hsSingleHair" (change it if needed) will be set to 0 at
 the hair's start and 1 at the hair's end (linear interpolation in
 between).
 
+
 See "ParametricHair.aoi" for an example.
+
 
 See also: http://www.aoi-board.de/index.php?action=posts&amp;fid=12&amp;tid=338
     </description>

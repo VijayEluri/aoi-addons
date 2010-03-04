@@ -7,10 +7,10 @@
 	<version>1.1</version>
 	<date>2009-04-13</date>
 	<description>
-
 If one or more objects are selected, search this list for all objects that
 matches the given string. If no object is selected, search all objects in the
 scenes.
+
 
 See also: http://www.aoi-board.de/index.php?action=posts&amp;fid=12&amp;tid=446
     </description>

@@ -9,9 +9,12 @@
 	<description>
 This script alters the cameras orientation to create the neccessary images for a skybox.
 
+
 --- RENAME YOUR CAMERA TO 'SkyCam' ! ---
 
+
 Render from 1 seconds to 7 seconds with exactly 1 FPS.
+
 
 See also: http://www.friendlyskies.net/aoiforum/viewtopic.php?id=1399
     </description>

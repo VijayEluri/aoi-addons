@@ -10,22 +10,28 @@
 This script alters the cameras orientation to produce a series of images
 that's ready to be displayed by 3DNP:
 
+
 http://thoro.de/portfolio/verschiedenes/3DNP.html
+
 
 In this version, the cameras position is fixed and just its orientation
 is modified. The result is, that, in your "virtual reality", you will
 have a fixed viewpoint and you can look around.
+
 
 Do not forget to edit the variable "levels" in this script. It's the
 amount of levels you can look up and down. So, if you set levels to "9",
 you'll get 4 levels of looking up, 4 of looking down and one level looking
 straight ahead.
 
+
 Note: "levels" defines the amount of seconds you'll have to render. So
 if you set it to 9, you'll have to render 9 seconds.
 
+
 Be sure to rename your camera to "3DNPCam" - otherwise the script can't
 find it.
+
 
 See also: http://www.aoi-board.de/index.php?action=posts&amp;fid=11&amp;tid=81
     </description>

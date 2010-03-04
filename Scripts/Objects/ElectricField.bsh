@@ -9,11 +9,11 @@
 	<description>
 Tries to visualize an electric field.
 
-Use SelectionSets to define the charges:
-- One set for positive charges and one for the negative ones.
-- Each sphere in a set will become a charge.
-- There's a special "probes set". Each mesh in this set will become a
-  "probe mesh". Each vertex of a probe mesh will generate a "trace".
+
+Use SelectionSets to define the charges: 
+	- One set for positive charges and one for the negative ones. 
+	- Each sphere in a set will become a charge. 
+	- There's a special "probes set". Each mesh in this set will become a "probe mesh". Each vertex of a probe mesh will generate a "trace".  
 
 If set, a Procedural3D-Texture will be applied to each trace. Have a
 look at the parametric hair script on how to use this feature.
