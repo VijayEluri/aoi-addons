@@ -8,7 +8,10 @@
 	<date>2008-03-24</date>
 	<filter experimental="mark"/>
 	<description>
-Create a helix around a curve - see HelixScript.pdf for details
+Create a helix around a curve - see documentation for details: 
+
+http://github.com/downloads/vain/aoi-addons/HelixScript-en.pdf (english) 
+http://github.com/downloads/vain/aoi-addons/HelixScript-de.pdf (german)
 
 
 See also: http://www.aoi-board.de/index.php?action=posts&amp;fid=30&amp;tid=139
