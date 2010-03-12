@@ -22,13 +22,10 @@ public class OFFExporter
 {
 	public static void exportFile(BFrame parent, Scene theScene)
 	{
-		// komfortkram hier rein ...
-		
-		
 		for (int i = 0; i < theScene.getNumObjects(); i++)
 		{
 			ObjectInfo oi = theScene.getObject(i);
-			
+
 			if (oi.getObject() instanceof FacetedMesh)
 			{
 				File out = new File("/tmp/" + i + ".off");
@@ -36,41 +33,24 @@ public class OFFExporter
 			}
 		}
 	}
-	
+
 	private static void exportObjectToFile(File path, FacetedMesh fmesh)
 	{
-/*
-		File ausgabeDatei = new File("vomWeb.html"); 
-      // FileWriter erzeugen. 
-      FileWriter fw = new FileWriter(ausgabeDatei); 
-      // Den FileWriter in einem BufferedWriter verpacken. 
-      BufferedWriter bw = new BufferedWriter(fw); 
-
-      // 
-      // Zeilenweise einlesen 
-       // 
-     String zeile = br.readLine(); 
-      while (zeile != null) { 
-	bw.write(zeile); 
-	bw.newLine(); 
-        zeile = br.readLine(); 
-      } 
-*/
 		try
 		{
 			FileWriter fw = new FileWriter(path);
 			BufferedWriter bw = new BufferedWriter(fw);
-			
+
 			// Header
 			bw.write("OFF");
 			bw.newLine();
-			
+
 			int numVertices = fmesh.getVertices().length;
 			int numFaces    = fmesh.getFaceCount();
-			
+
 			bw.write(numVertices + " " + numFaces + " 0");
 			bw.newLine();
-			
+
 			// Vertices
 			MeshVertex[] mv = fmesh.getVertices();
 			for (int i = 0; i < mv.length; i++)
@@ -78,30 +58,30 @@ public class OFFExporter
 				bw.write(mv[i].r.x + " " + mv[i].r.y + " " + mv[i].r.z + " ");
 				bw.newLine();
 			}
-			
+
 			// Faces
 			for (int i = 0; i < numFaces; i++)
 			{
 				int numIndices = fmesh.getFaceVertexCount(i);
-				
-				// Anzahl Vertices für dieses Face
+
+				// Number of vertices of this face.
 				bw.write(numIndices + " ");
-				
-				// Dazugehörige Vertex-Indizes
+
+				// Write vertex indices of this face.
 				for (int index = 0; index < numIndices; index++)
 				{
 					bw.write(Integer.toString(fmesh.getFaceVertexIndex(i, index)));
-					
-					// ggf. Leerzeichen
+
+					// Separate entries with spaces.
 					if (index < numIndices - 1)
 					{
 						bw.write(" ");
 					}
 				}
-				
+
 				bw.newLine();
 			}
-			
+
 			bw.close();
 		}
 		catch (Exception e)
