@@ -6,6 +6,7 @@
 	<author>TroY</author>
 	<version>1.0</version>
 	<date>2009-06-05</date>
+	<filter experimental="mark"/>
 	<description>
 	Prints the coordinate systems of the selected objects.
 	</description>

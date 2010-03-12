@@ -6,6 +6,7 @@
 	<author>TroY</author>
 	<version>0.1</version>
 	<date>2009-12-19</date>
+	<filter experimental="mark"/>
 	<description>
 Tries to visualize an electric field.
 

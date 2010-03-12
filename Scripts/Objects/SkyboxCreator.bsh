@@ -6,6 +6,7 @@
 	<author>TroY</author>
 	<version>0.2</version>
 	<date>2008-11-02</date>
+	<filter experimental="mark"/>
 	<description>
 This script alters the cameras orientation to create the neccessary images for a skybox.
 

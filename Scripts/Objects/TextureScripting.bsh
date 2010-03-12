@@ -6,6 +6,7 @@
 	<author>TroY</author>
 	<version>0.1</version>
 	<date>2009-03-31</date>
+	<filter experimental="mark"/>
 	<description>
 German tutorial-script on how to access texture parameters from within a script.
 

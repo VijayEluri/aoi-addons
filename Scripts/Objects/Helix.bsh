@@ -6,6 +6,7 @@
 	<author>TroY</author>
 	<version>0.3</version>
 	<date>2008-03-24</date>
+	<filter experimental="mark"/>
 	<description>
 Create a helix around a curve - see HelixScript.pdf for details
 

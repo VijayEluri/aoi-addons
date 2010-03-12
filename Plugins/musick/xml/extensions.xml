@@ -5,10 +5,18 @@
 	<author>TroY</author>
 	<date>2008-08-15</date>
     <description>
-Lets you control other objects by music files.
+Lets you control scripted objects by music files. 
+
+Only WAVE files can be read. The source code includes some example
+scripts, so you may have a look at that: 
+
+http://github.com/vain/aoi-addons 
+
+Navigate to "Plugins", "musick", "scriptedobjects".
     </description>
-    
-    <!--<resource type="TranslateBundle" id="measure" name="measure"/>-->
+
+	<filter experimental="mark" />
+
 	<resource type="UITheme" id="musick" name="musick/theme.xml"/>
     
 	<history>
@@ -17,7 +25,7 @@ Lets you control other objects by music files.
     	</log>
 
     	<log version="0.1" date="16 Jun 2008" author="TroY">
-			initial alpha release
+			Initial alpha release.
     	</log>
     </history>
     <comments>

@@ -5,12 +5,18 @@
 	<author>TroY</author>
 	<date>2008-10-30</date>
 	<description>
-OFF Translator
+OFF Translator. 
+
+It is supposed to export meshes to a file in OFF format. Note that
+currently only the meshes themselves get exported -- other features of
+the OFF format are not supported.
 	</description>
-	
+
+	<filter experimental="mark" />
+
 	<history>
 		<log version="0.1" date="30 Oct 2008" author="TroY">
-			initial release
+			Initial release.
 		</log>
 	</history>
 	<comments>

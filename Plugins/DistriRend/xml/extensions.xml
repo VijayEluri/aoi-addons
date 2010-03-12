@@ -6,8 +6,17 @@
 	<date>2009-03-31</date>
 	<description>
 Splits a scene into two files which can be rendered simultaneously on
-two PCs.
+two PCs. 
+
+Note that this is a trivial "workaround". It'll only work if your FOV is
+low enough. Furthermore, you'll have to manually merge the resulting
+images. 
+
+This plugin is not suited for doing serious distributed rendering but it
+can be useful in some situations.
 	</description>
+
+	<filter experimental="mark" />
 
 	<history>
 		<log version="0.1.1" date="31 Mar 2009" author="TroY">

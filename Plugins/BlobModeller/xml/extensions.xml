@@ -4,9 +4,20 @@
 	<plugin class="troy.blob.BlobPlugin"/>
 	<author>TroY</author>
 	<date>2009-12-01</date>
+	<import name="Selections"/>
 	<description>
-		A blob modeller.
+An experimental blob modeller. 
+
+It is based on the "Selections" plugin. Just add a bunch of common
+spheres to your scene and add those spheres to a selection set. In the
+properties of a blob object, you can set the name of your selection set:
+The default is "p" for additive spheres and "n" for subtractive sets. 
+
+Currently, it only supports spheres (not ellipsoids or other object
+types).
 	</description>
+
+	<filter experimental="mark" />
 
 	<history>
 		<log version="0.1" date="01 Dec 2009" author="TroY">
