@@ -1,0 +1,98 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+
+<script>
+	<name>MoveObjectsToLocation</name>
+	<author>TroY</author>
+	<version>1.0</version>
+	<date>2010-05-27</date>
+	<description>
+Moves all selected objects to the location of another object,
+orientations will also get copied (optionally). An undo record will be
+created.
+
+
+You have to select all objects you wish to move plus the desired target
+object. Once you call the script, you can pick the target object in a
+list. In that dialog, you can also chose whether you'd like to copy
+orientations as well.
+
+
+Some code based on "Copy to Locations" by John Burak.
+	</description>
+</script>
+*/
+
+Scene scene = window.getScene();
+
+int[] selind = window.getSelectedIndices();
+if (selind.length < 2)
+{
+	print("You need to select at least two objects.");
+	return;
+}
+
+// Create list of object names.
+BList objectNameList = new BList();
+objectNameList.setMultipleSelectionEnabled(false);
+
+// We could simply build a list with the names of the objects. However,
+// that won't work if there are multiple objects with the same name. To
+// get around this, we use an ArrayList that stores both name and
+// internal id. When .toString() is called on this list, we'll get a
+// nice string representation of the contents (name and id).
+for (int i = 0; i < selind.length; i++) 
+{
+	ObjectInfo obj = scene.getObject(selind[i]);
+	ArrayList tuple = new ArrayList();
+	tuple.add(obj.getName());
+	tuple.add(obj.getId());
+	objectNameList.add(tuple);
+}
+
+// Create a container for that list so that it can be scrolled.
+BScrollPane scrollableObjectNameList = new BScrollPane(objectNameList);
+scrollableObjectNameList.setPreferredViewSize(new Dimension(200, 200));
+scrollableObjectNameList.setForceWidth(true);
+scrollableObjectNameList.setForceHeight(true);
+
+// Construct final container with checkbox.
+BCheckBox orientation = new BCheckBox("Apply orientation", true);
+ColumnContainer finalContainer = new ColumnContainer();
+finalContainer.add(scrollableObjectNameList);
+finalContainer.add(orientation);
+
+// Show dialog and quit if the user cancelled.
+PanelDialog dialog = new PanelDialog(window,
+		"Move to location of:", finalContainer);
+
+if (!dialog.clickedOk())
+	return;
+
+// Retrieve the selected target object. Note that we must call .get(1)
+// on the "selected value" to get the id of this object.
+ObjectInfo choice = scene.getObjectById(
+		objectNameList.getSelectedValue().get(1));
+CoordinateSystem newCoords = choice.getCoords();
+
+// Move objects. Before moving them, store their old coordinate system
+// in an undo record. Hence we get *one* undo record that holds the
+// information of *all* moved objects.
+UndoRecord undo = new UndoRecord(window, false);
+for (int i = 0; i < selind.length; i++) 
+{
+	ObjectInfo thisObject = scene.getObject(selind[i]);
+	CoordinateSystem myNewCoords = newCoords.duplicate();
+
+	// Reset orientation if desired.
+	if (!orientation.getState())
+		myNewCoords.setOrientation(
+				thisObject.getCoords().getZDirection(),
+				thisObject.getCoords().getUpDirection());
+
+	undo.addCommand(UndoRecord.COPY_COORDS,
+			new Object[] {myNewCoords, thisObject.getCoords()});
+
+	thisObject.setCoords(myNewCoords);
+}
+window.setUndoRecord(undo);
