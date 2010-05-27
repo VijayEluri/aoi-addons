@@ -1,0 +1,55 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+
+<script>
+	<name>SetCameraFocalDistance</name>
+	<author>TroY</author>
+	<version>1.0</version>
+	<date>2010-05-25</date>
+	<description>
+Set the focal distance of a camera so that one specific object is
+exactly in focus.
+
+
+See also: http://www.aoi-board.de/index.php?action=posts&amp;fid=12&amp;tid=898
+    </description>
+</script>
+*/
+
+Scene scene = window.getScene();
+
+int[] selind = window.getSelectedIndices();
+if (selind.length != 2)
+{
+	print("You need to select your camera and the to-be-focused object.");
+	return;
+}
+
+ObjectInfo cam = null;
+ObjectInfo target = null;
+if (scene.getObject(selind[0]).getObject() instanceof SceneCamera)
+{
+	cam = scene.getObject(selind[0]);
+	target = scene.getObject(selind[1]);
+}
+else
+{
+	cam = scene.getObject(selind[1]);
+	target = scene.getObject(selind[0]);
+}
+
+Vec3 tpos = target.getCoords().getOrigin();
+Vec3 cpos = cam.getCoords().getOrigin();
+Vec3 cdir = cam.getCoords().getZDirection();
+cdir.normalize();
+
+double alpha = cdir.dot(tpos.minus(cpos));
+
+if (alpha < 0.0)
+{
+	print("Whoops. Looks like the object is behind the camera.");
+	return;
+}
+
+cam.getObject().setFocalDistance(alpha);
+print("Focal distance set to " + alpha);
