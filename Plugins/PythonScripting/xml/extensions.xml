@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<extension name="PythonScripting" version="0.1">
+	<plugin class="python.PythonPlugin"/>
+	<author>TroY</author>
+	<date>2009-12-01</date>
+	<description>
+Experimental python scripting bridge.
+	</description>
+
+	<filter experimental="mark" />
+
+	<history>
+		<log version="0.1" date="13 Jul 2010" author="TroY">
+			Initial release.
+		</log>
+	</history>
+	<comments>
+	</comments>
+</extension>

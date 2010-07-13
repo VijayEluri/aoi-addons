@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     11.03.2008 11:19:07                                                        
+
+     Creates a JAR file ready to distribute
+                   
+     moi                                                                
+     ====================================================================== -->
+
+<!-- Set project name here -->
+<project name="PythonScripting" default="final">
+
+	<description>
+            Creates a JAR file ready to distribute
+    </description>
+
+	<property name="srcDir" location="src" />
+	<property name="dirBin" location="antBin" />
+	<property name="dirJar" location="antDist" />
+	<property name="fileJar" location="${dirJar}/${ant.project.name}.jar" />
+	<property name="manual" location="manual" />
+	
+	<!-- AoI stuff -->
+	<property name="aoiJAR" value="../../jars/ArtOfIllusion.jar" />
+	
+	<!-- Additional files such as "plugins" -->
+	<property name="additionalFilesDir" value="xml" />
+
+	<!-- ================================= 
+          target: init              
+         ================================= -->
+	<target name="init" description="--> Initialize">
+		<echo message="Removing old directories" />
+
+		<delete dir="${dirBin}" />
+		<delete dir="${dirJar}" />
+
+		<mkdir dir="${dirBin}" />
+		<mkdir dir="${dirJar}" />
+	</target>
+
+
+	<!-- ================================= 
+          target: compile              
+         ================================= -->
+	<target name="compile" depends="init" description="--> Compiles all classes">
+		<echo message="Compiling" />
+
+		<javac srcdir="${srcDir}" destdir="${dirBin}" classpath="${aoiJAR};jarfile" debug="on" source="1.5" target="1.5">
+			<compilerarg value="-Xlint"/>
+		</javac>
+	</target>
+
+	<!-- ================================= 
+          target: jar              
+         ================================= -->
+	<target name="jar" depends="compile" description="--> Creates JAR file">
+		<echo message="Copying additional files to jar folder" />
+		<copy todir="${dirBin}">
+			<fileset dir="${additionalFilesDir}" />
+		</copy>
+		
+		
+		<echo message="Creating JAR" />
+		<jar destfile="${fileJar}" baseDir="${dirBin}" />
+	</target>
+
+	<!-- ================================= 
+          target: cleanUp              
+         ================================= -->
+	<target name="cleanUp" depends="jar" description="--> Remove bin directory">
+		<echo message="Cleaning up" />
+
+		<delete dir="${dirBin}" />
+	</target>
+
+	<!-- ================================= 
+          target: final - automatically call depending targets
+         ================================= -->
+	<target name="final" depends="cleanUp" description="--> Compile all classes, create JAR and clean up">
+		<echo message="Finished" />
+	</target>
+
+	<!--
+		=================================
+		target: clean
+		=================================
+	-->
+	<target name="clean" description="--> Remove dist directory">
+		<echo message="Removing created files" />
+		<delete dir="${dirJar}" />
+	</target>
+
+</project>
