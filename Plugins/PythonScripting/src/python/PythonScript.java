@@ -25,68 +25,71 @@ import bsh.*;
 
 public class PythonScript extends ScriptedObject
 {
+	/** Invoke constructor of ScriptedObject. */
 	public PythonScript(String scriptText)
 	{
 		super(scriptText);
 	}
 
+	/** Use Jython to execute the script. Provide access to AoI classes, a
+	 * binding to "script" and do error handling. */
 	@Override
 	public ObjectScript getObjectScript() throws EvalError
 	{
-		ObjectScript parsedScript = null;
-		try
+		ObjectScript readyToExecute = null;
+		final ScriptEngine engine =
+			new ScriptEngineManager().getEngineByName("python");
+
+		final String myScript = getScript();
+
+		// Prepare an "ObjectScript". This will be run by a
+		// ScriptedObjectController.
+		readyToExecute = new ObjectScript()
 		{
-			final ScriptEngine engine =
-				new ScriptEngineManager().getEngineByName("python");
-
-			final String myScript = getScript();
-
-			parsedScript = new ObjectScript() {
-				public void execute(ScriptedObjectController script)
+			public void execute(ScriptedObjectController script)
+			{
+				try
 				{
-					try
-					{
-						engine.eval("from artofillusion import *");
-						engine.eval("from artofillusion.image import *");
-						engine.eval("from artofillusion.material import *");
-						engine.eval("from artofillusion.math import *");
-						engine.eval("from artofillusion.object import *");
-						engine.eval("from artofillusion.script import *");
-						engine.eval("from artofillusion.texture import *");
-						engine.eval("from artofillusion.ui import *");
-						engine.eval("from buoy.event import *");
-						engine.eval("from buoy.widget import *");
+					// Those are copied from ScriptRunner.getInterpreter().
+					engine.eval("from artofillusion import *");
+					engine.eval("from artofillusion.image import *");
+					engine.eval("from artofillusion.material import *");
+					engine.eval("from artofillusion.math import *");
+					engine.eval("from artofillusion.object import *");
+					engine.eval("from artofillusion.script import *");
+					engine.eval("from artofillusion.texture import *");
+					engine.eval("from artofillusion.ui import *");
+					engine.eval("from buoy.event import *");
+					engine.eval("from buoy.widget import *");
 
-						engine.put("script", script);
+					// The "script" object which provides access to the scene etc.
+					engine.put("script", script);
 
-						PrintWriter out = new PrintWriter(new ScriptOutputWindow());
-						ScriptContext context = engine.getContext();
-						context.setWriter(out);
-						context.setErrorWriter(out);
+					// Set up output channels. That is, throw all output into the
+					// script output window.
+					Interpreter interp = ScriptRunner.getInterpreter();
+					PrintWriter out = new PrintWriter(interp.getOut());
+					ScriptContext context = engine.getContext();
+					context.setWriter(out);
+					context.setErrorWriter(out);
 
-						engine.eval(myScript);
-					}
-					catch (javax.script.ScriptException ex)
-					{
-						ex.printStackTrace();
-					}
+					// Run the script.
+					engine.eval(myScript);
 				}
-			};
-		}
-		catch (final Exception ex)
-		{
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					ScriptRunner.displayError(ex, 1);
-				}
-			});
-			parsedScript = new ObjectScript() {
-				public void execute(ScriptedObjectController script)
+				catch (final javax.script.ScriptException ex)
 				{
+					// When an error happens, display the appropriate dialog and
+					// show the stack trace (both will be done by displayError()).
+					// It's important that this happens on AWT's event thread.
+					EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							ScriptRunner.displayError(ex, -1);
+						}
+					});
 				}
-			};
-		}
-		return parsedScript;
+			}
+		};
+		return readyToExecute;
 	}
 }
 
