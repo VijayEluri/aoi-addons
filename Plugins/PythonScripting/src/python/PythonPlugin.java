@@ -27,6 +27,8 @@ import java.awt.*;
 import java.util.*;
 import java.io.*;
 import java.text.*;
+import java.lang.reflect.*;
+import java.net.*;
 
 public class PythonPlugin implements Plugin
 {
@@ -198,6 +200,33 @@ public class PythonPlugin implements Plugin
 					tools.add(menuItem, p + 1);
 					break;
 				}
+			}
+		}
+		else if (message == Plugin.APPLICATION_STARTING)
+		{
+			// Inject Jython into the classpath.
+			// TODO: Translate error message?
+			// TODO: Could this be done via extensions.xml?
+			try
+			{
+				File jylib = new File(ArtOfIllusion.APP_DIRECTORY);
+				jylib = new File(jylib, "lib");
+				jylib = new File(jylib, "jython.jar");
+
+				Method addURL = URLClassLoader.class.getDeclaredMethod("addURL",
+						new Class[] {URL.class});
+				addURL.setAccessible(true);
+				ClassLoader cl = ClassLoader.getSystemClassLoader();
+				URL url = new URL("file://" + jylib.getAbsolutePath());
+				addURL.invoke(cl, new Object[] { url });
+			}
+			catch (Exception ex)
+			{
+				String msg = "Could not load inject Jython into classpath:";
+				msg += "\n";
+				msg += ex.getMessage();
+				System.err.println(msg);
+				ex.printStackTrace();
 			}
 		}
 	}
