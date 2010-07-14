@@ -84,6 +84,7 @@ public class PythonPlugin implements Plugin
 
 		theWindow.setSelection(theScene.getNumObjects() - 1);
 		theWindow.updateImage();
+		theWindow.setModified();
 	}
 
 	/**
