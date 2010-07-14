@@ -90,35 +90,68 @@ public class PythonPlugin implements Plugin
 	/**
 	 * Execute a script (click on menu item).
 	 */
-	public void executeScriptCommand(CommandEvent ev)
+	public void executeScriptCommand(LayoutWindow layout, File script)
 	{
-		// TODO: Replace dummy.
-		System.out.println(ev.getActionCommand());
+		// Try to load the file.
+		String scriptText = null;
+		try
+		{
+			scriptText = ArtOfIllusion.loadFile(script);
+		}
+		catch (IOException ex)
+		{
+			new BStandardDialog("",
+					new String [] {Translate.text("errorReadingScript"),
+						ex.getMessage() == null ? "" : ex.getMessage()},
+						BStandardDialog.ERROR).showMessageDialog(layout);
+			return;
+		}
+
+		// Run the script. Error handling is done in PythonRunner.
+		PythonRunner.run(scriptText, layout);
+
+		// Quote from "LayoutWindow.java":
+		//   "To be safe, since we can't rely on scripts to set undo records
+		//   or call setModified()."
+		// We don't have access to "dispatchSceneChangedEvent()", so we
+		// simply call "setModified()".
+		layout.updateImage();
+		layout.setModified();
 	}
 
 	/**
 	 * Recursively add python scripts in the tool-scripts-directory.
 	 */
-	public void addScriptsToMenu(BMenu menu, File dir)
+	public void addScriptsToMenu(final LayoutWindow layout, BMenu menu, File dir)
 	{
+		// Iterate over a sorted list of files in the current directory.
 		String files[] = dir.list();
 		if (files == null)
 			return;
 		Arrays.sort(files, Collator.getInstance(Translate.getLocale()));
+
 		for (String file : files)
 		{
-			File f = new File(dir, file);
+			// If this is a subdirectory, then create a submenu.
+			final File f = new File(dir, file);
 			if (f.isDirectory())
 			{
 				BMenu m = new BMenu(file);
 				menu.add(m);
-				addScriptsToMenu(m, f);
+				addScriptsToMenu(layout, m, f);
 			}
+			// Create a menu item for this script.
 			else if (file.endsWith(".py") && file.length() > 3)
 			{
 				BMenuItem item = new BMenuItem(file.substring(0, file.length() - 3));
 				item.setActionCommand(f.getAbsolutePath());
-				item.addEventLink(CommandEvent.class, this, "executeScriptCommand");
+				item.addEventLink(CommandEvent.class,
+						new Object() {
+							public void doClick()
+							{
+								executeScriptCommand(layout, f);
+							}
+						}, "doClick");
 				menu.add(item);
 			}
 		}
@@ -151,7 +184,7 @@ public class PythonPlugin implements Plugin
 			// Add tool scripts. TODO: Translate.
 			BMenu scripts = new BMenu("Scripts (Python)");
 			File dir = new File(ArtOfIllusion.TOOL_SCRIPT_DIRECTORY);
-			addScriptsToMenu(scripts, dir);
+			addScriptsToMenu(layout, scripts, dir);
 
 			// Add both of them.
 			for (int p = 0; p < tools.getChildCount(); p++)
