@@ -35,7 +35,7 @@ public class PythonPlugin implements Plugin
 	/**
 	 * See if you can find an engine that handles "python" or "jython".
 	 */
-	public boolean pythonAvailable()
+	public boolean checkPythonAvailable()
 	{
 		java.util.List<ScriptEngineFactory> fac =
 			new ScriptEngineManager().getEngineFactories();
@@ -50,26 +50,25 @@ public class PythonPlugin implements Plugin
 			}
 		}
 
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				String msg = "Python Scripting support could not be found.\n";
+				msg += "Are you sure that \"jython.jar\" is in your classpath?";
+				new BStandardDialog("Error", msg,
+					BStandardDialog.ERROR).showMessageDialog(null);
+			}
+		});
+
 		return false;
 	}
 
 	/**
 	 * Creates a new object and sets undo records.
 	 */
-	public void commandSelected(LayoutWindow theWindow)
+	public void addObjectScriptToScene(LayoutWindow theWindow)
 	{
-		if (!pythonAvailable())
-		{
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					String msg = "Python Scripting support could not be found.\n";
-					msg += "Are you sure that \"jython.jar\" is in your classpath?";
-					new BStandardDialog("Error", msg,
-						BStandardDialog.ERROR).showMessageDialog(null);
-				}
-			});
+		if (!checkPythonAvailable())
 			return;
-		}
 
 		Scene theScene = theWindow.getScene();
 
@@ -90,7 +89,7 @@ public class PythonPlugin implements Plugin
 	/**
 	 * Execute a script (click on menu item).
 	 */
-	public void executeScriptCommand(LayoutWindow layout, File script)
+	public void runToolScript(LayoutWindow layout, File script)
 	{
 		// Try to load the file.
 		String scriptText = null;
@@ -149,7 +148,7 @@ public class PythonPlugin implements Plugin
 						new Object() {
 							public void doClick()
 							{
-								executeScriptCommand(layout, f);
+								runToolScript(layout, f);
 							}
 						}, "doClick");
 				menu.add(item);
@@ -169,7 +168,6 @@ public class PythonPlugin implements Plugin
 			// Add "Create scripted object (Python) ..." to new layout
 			// windows. TODO: Translate.
 			final LayoutWindow layout = (LayoutWindow)args[0];
-			final PythonPlugin me = this;
 			BMenu tools = layout.getToolsMenu();
 			BMenuItem menuItem = new BMenuItem("Create Scripted Object (Python)...");
 			menuItem.setActionCommand("newpythonobjectscript");
@@ -177,7 +175,7 @@ public class PythonPlugin implements Plugin
 					new Object() {
 						public void doClick()
 						{
-							me.commandSelected(layout);
+							addObjectScriptToScene(layout);
 						}
 					}, "doClick");
 
