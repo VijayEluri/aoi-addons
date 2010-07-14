@@ -18,10 +18,36 @@ package python;
 import artofillusion.*;
 import artofillusion.math.*;
 import artofillusion.object.*;
+import buoy.widget.*;
+
+import javax.script.*;
+import java.awt.*;
+import java.util.*;
 
 public class PythonPlugin implements ModellingTool
 {
 	private static int counter = 1;
+
+	/**
+	 * See if you can find an engine that handles "python" or "jython".
+	 */
+	public boolean pythonAvailable()
+	{
+		java.util.List<ScriptEngineFactory> fac =
+			new ScriptEngineManager().getEngineFactories();
+
+		for (ScriptEngineFactory f : fac)
+		{
+			for (String name : f.getNames())
+			{
+				name = name.toLowerCase();
+				if (name.equals("python") || name.equals("jython"))
+					return true;
+			}
+		}
+
+		return false;
+	}
 
 	/**
 	 * Creates a new object and sets undo records.
@@ -29,6 +55,19 @@ public class PythonPlugin implements ModellingTool
 	@Override
 	public void commandSelected(LayoutWindow theWindow)
 	{
+		if (!pythonAvailable())
+		{
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					String msg = "Python Scripting support could not be found.\n";
+					msg += "Are you sure that \"jython.jar\" is in your classpath?";
+					new BStandardDialog("Error", msg,
+						BStandardDialog.ERROR).showMessageDialog(null);
+				}
+			});
+			return;
+		}
+
 		Scene theScene = theWindow.getScene();
 
 		String cstr = "Python " + (counter++);
