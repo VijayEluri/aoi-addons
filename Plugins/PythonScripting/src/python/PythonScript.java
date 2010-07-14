@@ -17,10 +17,6 @@ package python;
 
 import artofillusion.*;
 import artofillusion.script.*;
-
-import java.awt.*;
-import java.io.*;
-import javax.script.*;
 import bsh.*;
 
 public class PythonScript extends ScriptedObject
@@ -37,56 +33,14 @@ public class PythonScript extends ScriptedObject
 	public ObjectScript getObjectScript() throws EvalError
 	{
 		ObjectScript readyToExecute = null;
-		final ScriptEngine engine =
-			new ScriptEngineManager().getEngineByName("python");
+		final String script = getScript();
 
-		final String myScript = getScript();
-
-		// Prepare an "ObjectScript". This will be run by a
-		// ScriptedObjectController.
+		// Prepare an "ObjectScript".
 		readyToExecute = new ObjectScript()
 		{
-			public void execute(ScriptedObjectController script)
+			public void execute(ScriptedObjectController controller)
 			{
-				try
-				{
-					// Those are copied from ScriptRunner.getInterpreter().
-					engine.eval("from artofillusion import *");
-					engine.eval("from artofillusion.image import *");
-					engine.eval("from artofillusion.material import *");
-					engine.eval("from artofillusion.math import *");
-					engine.eval("from artofillusion.object import *");
-					engine.eval("from artofillusion.script import *");
-					engine.eval("from artofillusion.texture import *");
-					engine.eval("from artofillusion.ui import *");
-					engine.eval("from buoy.event import *");
-					engine.eval("from buoy.widget import *");
-
-					// The "script" object which provides access to the scene etc.
-					engine.put("script", script);
-
-					// Set up output channels. That is, throw all output into the
-					// script output window.
-					Interpreter interp = ScriptRunner.getInterpreter();
-					PrintWriter out = new PrintWriter(interp.getOut());
-					ScriptContext context = engine.getContext();
-					context.setWriter(out);
-					context.setErrorWriter(out);
-
-					// Run the script.
-					engine.eval(myScript);
-				}
-				catch (final javax.script.ScriptException ex)
-				{
-					// When an error happens, display the appropriate dialog and
-					// show the stack trace (both will be done by displayError()).
-					// It's important that this happens on AWT's event thread.
-					EventQueue.invokeLater(new Runnable() {
-						public void run() {
-							ScriptRunner.displayError(ex, -1);
-						}
-					});
-				}
+				PythonRunner.run(script, controller);
 			}
 		};
 		return readyToExecute;
