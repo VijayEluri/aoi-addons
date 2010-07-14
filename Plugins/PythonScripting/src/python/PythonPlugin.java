@@ -91,6 +91,9 @@ public class PythonPlugin implements Plugin
 	 */
 	public void runToolScript(LayoutWindow layout, File script)
 	{
+		if (!checkPythonAvailable())
+			return;
+
 		// Try to load the file.
 		String scriptText = null;
 		try
