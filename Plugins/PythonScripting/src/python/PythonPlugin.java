@@ -18,12 +18,15 @@ package python;
 import artofillusion.*;
 import artofillusion.math.*;
 import artofillusion.object.*;
+import artofillusion.ui.*;
 import buoy.event.*;
 import buoy.widget.*;
 
 import javax.script.*;
 import java.awt.*;
 import java.util.*;
+import java.io.*;
+import java.text.*;
 
 public class PythonPlugin implements Plugin
 {
@@ -84,6 +87,46 @@ public class PythonPlugin implements Plugin
 		theWindow.updateImage();
 	}
 
+	/**
+	 * Execute a script (click on menu item).
+	 */
+	public void executeScriptCommand(CommandEvent ev)
+	{
+		// TODO: Replace dummy.
+		System.out.println(ev.getActionCommand());
+	}
+
+	/**
+	 * Recursively add python scripts in the tool-scripts-directory.
+	 */
+	public void addScriptsToMenu(BMenu menu, File dir)
+	{
+		String files[] = dir.list();
+		if (files == null)
+			return;
+		Arrays.sort(files, Collator.getInstance(Translate.getLocale()));
+		for (String file : files)
+		{
+			File f = new File(dir, file);
+			if (f.isDirectory())
+			{
+				BMenu m = new BMenu(file);
+				menu.add(m);
+				addScriptsToMenu(m, f);
+			}
+			else if (file.endsWith(".py") && file.length() > 3)
+			{
+				BMenuItem item = new BMenuItem(file.substring(0, file.length() - 3));
+				item.setActionCommand(f.getAbsolutePath());
+				item.addEventLink(CommandEvent.class, this, "executeScriptCommand");
+				menu.add(item);
+			}
+		}
+	}
+
+	/**
+	 * Add menu items.
+	 */
 	@Override
 	public void processMessage(int message, Object args[])
 	{
@@ -105,11 +148,18 @@ public class PythonPlugin implements Plugin
 						}
 					}, "doClick");
 
+			// Add tool scripts. TODO: Translate.
+			BMenu scripts = new BMenu("Scripts (Python)");
+			File dir = new File(ArtOfIllusion.TOOL_SCRIPT_DIRECTORY);
+			addScriptsToMenu(scripts, dir);
+
+			// Add both of them.
 			for (int p = 0; p < tools.getChildCount(); p++)
 			{
 				MenuWidget mw = tools.getChild(p);
 				if (mw instanceof BSeparator)
 				{
+					tools.add(scripts, p + 1);
 					tools.add(menuItem, p + 1);
 					break;
 				}
