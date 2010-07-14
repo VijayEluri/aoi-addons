@@ -18,13 +18,14 @@ package python;
 import artofillusion.*;
 import artofillusion.math.*;
 import artofillusion.object.*;
+import buoy.event.*;
 import buoy.widget.*;
 
 import javax.script.*;
 import java.awt.*;
 import java.util.*;
 
-public class PythonPlugin implements ModellingTool
+public class PythonPlugin implements Plugin
 {
 	private static int counter = 1;
 
@@ -52,7 +53,6 @@ public class PythonPlugin implements ModellingTool
 	/**
 	 * Creates a new object and sets undo records.
 	 */
-	@Override
 	public void commandSelected(LayoutWindow theWindow)
 	{
 		if (!pythonAvailable())
@@ -85,9 +85,36 @@ public class PythonPlugin implements ModellingTool
 	}
 
 	@Override
-	public String getName()
+	public void processMessage(int message, Object args[])
 	{
-		return "Add a scripted object (Python)";
+		if (message == Plugin.SCENE_WINDOW_CREATED
+				&& args[0] instanceof LayoutWindow)
+		{
+			// Add "Create scripted object (Python) ..." to new layout
+			// windows. TODO: Translate.
+			final LayoutWindow layout = (LayoutWindow)args[0];
+			final PythonPlugin me = this;
+			BMenu tools = layout.getToolsMenu();
+			BMenuItem menuItem = new BMenuItem("Create Scripted Object (Python)...");
+			menuItem.setActionCommand("newpythonobjectscript");
+			menuItem.addEventLink(CommandEvent.class,
+					new Object() {
+						public void doClick()
+						{
+							me.commandSelected(layout);
+						}
+					}, "doClick");
+
+			for (int p = 0; p < tools.getChildCount(); p++)
+			{
+				MenuWidget mw = tools.getChild(p);
+				if (mw instanceof BSeparator)
+				{
+					tools.add(menuItem, p + 1);
+					break;
+				}
+			}
+		}
 	}
 }
 
