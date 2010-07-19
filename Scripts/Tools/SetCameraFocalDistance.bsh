@@ -115,7 +115,19 @@ switch (selind.length)
 			cam = target;
 			target = tmp;
 		}
+
+		if (!(cam.getObject() instanceof SceneCamera) &&
+				!(target.getObject() instanceof SceneCamera))
+		{
+			print("None of the selected objects is a Scene Camera.");
+			return;
+		}
 		break;
+
+	default:
+		print("You need to select at most two objects: " +
+				"A target and (optionally) a camera.");
+		return;
 }
 
 // Calc focal distance and set it.
