@@ -4,8 +4,8 @@
 <script>
 	<name>SetCameraFocalDistance</name>
 	<author>TroY</author>
-	<version>1.0</version>
-	<date>2010-05-25</date>
+	<version>1.1</version>
+	<date>2010-07-19</date>
 	<description>
 Set the focal distance of a camera so that one specific object is
 exactly in focus.
@@ -16,28 +16,109 @@ See also: http://www.aoi-board.de/index.php?action=posts&amp;fid=12&amp;tid=898
 </script>
 */
 
-Scene scene = window.getScene();
-
-int[] selind = window.getSelectedIndices();
-if (selind.length != 2)
+// Find/select a camera in the scene -- this function will be used
+// below.
+ObjectInfo findCamera(LayoutWindow win, Scene scene)
 {
-	print("You need to select your camera and the to-be-focused object.");
-	return;
+	// See if there are 0 or 1 cameras.
+	ObjectInfo cam = null;
+	int numcams = 0;
+	for (ObjectInfo oi : scene.getAllObjects())
+	{
+		if (oi.getObject() instanceof SceneCamera)
+		{
+			cam = oi;
+			numcams++;
+		}
+	}
+
+	if (numcams == 0)
+	{
+		print("There are no cameras in the scene.");
+		return null;
+	}
+	else if (numcams == 1)
+		return cam;
+
+	// We need to associate cameras with their names because
+	// ".toString()" on an ObjectInfo doesn't return a readable name.
+	class InfoTuple
+	{
+		public ObjectInfo cam;
+		public InfoTuple(ObjectInfo cam)
+		{
+			this.cam = cam;
+		}
+		public String toString()
+		{
+			return cam.getName();
+		}
+	}
+
+	// Fill a list with all cams in the scene.
+	Object[] col = new Object[numcams];
+	int at = 0;
+	for (ObjectInfo oi : scene.getAllObjects())
+	{
+		if (oi.getObject() instanceof SceneCamera)
+		{
+			col[at++] = new InfoTuple(oi);
+		}
+	}
+
+	BList listWidget = new BList(col);
+	listWidget.setMultipleSelectionEnabled(false);
+
+	// Present a dialog.
+	ComponentsDialog dlg = new ComponentsDialog(
+			win,
+			"Please select a camera in the scene",
+			new Widget[] { listWidget },
+			new String[] { "Available cams:" }
+			);
+
+	if (!dlg.clickedOk())
+		return null;
+
+	return listWidget.getSelectedValue().cam;
 }
+
+// Sort out which objects are selected...
+Scene scene = window.getScene();
 
 ObjectInfo cam = null;
 ObjectInfo target = null;
-if (scene.getObject(selind[0]).getObject() instanceof SceneCamera)
+
+int[] selind = window.getSelectedIndices();
+switch (selind.length)
 {
-	cam = scene.getObject(selind[0]);
-	target = scene.getObject(selind[1]);
-}
-else
-{
-	cam = scene.getObject(selind[1]);
-	target = scene.getObject(selind[0]);
+	case 0:
+		print("You need to select at least the to-be-focused object.");
+		return;
+
+	case 1:
+		cam = findCamera(window, scene);
+		if (cam == null)
+			return;
+
+		target = scene.getObject(selind[0]);
+		break;
+
+	case 2:
+		cam = scene.getObject(selind[0]);
+		target = scene.getObject(selind[1]);
+
+		// Exchange if cam is not a cam. :)
+		if (!(cam.getObject() instanceof SceneCamera))
+		{
+			tmp = cam;
+			cam = target;
+			target = tmp;
+		}
+		break;
 }
 
+// Calc focal distance and set it.
 Vec3 tpos = target.getCoords().getOrigin();
 Vec3 cpos = cam.getCoords().getOrigin();
 Vec3 cdir = cam.getCoords().getZDirection();
