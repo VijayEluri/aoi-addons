@@ -1,0 +1,63 @@
+/*
+<?xml version='1.0' standalone='yes' ?>
+<!-- xml header for scripts & plugin manager -->
+<script>
+	<name>CameraLookAt</name>
+	<author>TroY</author>
+	<version>0.1</version>
+	<date>2010-07-11</date>
+	<description>
+Set a camera's view direction. Simply select your camera and the
+object to be looked at.
+
+
+See also: http://www.aoi-board.de/index.php?action=posts&amp;fid=5&amp;tid=922&amp;site=1
+    </description>
+</script>
+*/
+
+
+// Sort out the objects.
+scene = window.getScene();
+sel = scene.getSelection();
+
+if (sel.length != 2)
+{
+	print("Please select a camera and another object.");
+	return;
+}
+
+cam = null;
+obj = null;
+if (scene.getObject(sel[0]).getObject() instanceof SceneCamera)
+{
+	cam = scene.getObject(sel[0]);
+	obj = scene.getObject(sel[1]);
+}
+else
+{
+	cam = scene.getObject(sel[1]);
+	obj = scene.getObject(sel[0]);
+}
+
+// Find new view direction.
+newzdir = obj.getCoords().getOrigin().minus(
+	cam.getCoords().getOrigin());
+newzdir.normalize();
+
+// Find new up direction (if newzdir is parallel to Y, then align
+// new updir to X -- otherwise align to Y).
+if (Math.abs(newzdir.dot(Vec3.vy())) > 0.999)
+{
+	newupdir = newzdir.cross(Vec3.vx());
+	newupdir = newupdir.cross(newzdir);
+}
+else
+{
+	newupdir = newzdir.cross(Vec3.vy());
+	newupdir = newupdir.cross(newzdir);
+}
+newupdir.normalize();
+
+// Set the cam's new Z axis.
+cam.getCoords().setOrientation(newzdir, newupdir);
