@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# PLEASE MAKE SURE TO EXECUTE THIS SCRIPT DIRECTLY FROM ITS DIRECTORY!
-
 function die()
 {
 	echo "Died: $@"
 	exit 1
 }
+
+cd "$(dirname "$(readlink -f "$0")")" || die "Could not cd to basedir."
 
 # Decide where to put the stuff
 BASE="${PWD}/archives"
