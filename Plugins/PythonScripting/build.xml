@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="PythonScripting" default="jar">
+
+	<description>
+		Compile sources and build a JAR file ready to distribute.
+	</description>
+
+	<!-- Target: Init -->
+	<target name="init">
+		<mkdir dir="antBuild" />
+		<mkdir dir="antDist" />
+	</target>
+
+	<!-- Target: Compile -->
+	<target name="compile" depends="init">
+		<javac
+			srcdir="src" destdir="antBuild"
+			source="1.5" target="1.5"
+			debug="on" includeantruntime="false">
+
+			<!-- Include AoI.jar or other plugins -->
+			<classpath>
+				<pathelement path="${classpath}" />
+				<pathelement location="../../jars/ArtOfIllusion.jar" />
+			</classpath>
+
+			<compilerarg value="-Xlint" />
+
+		</javac>
+	</target>
+
+	<!-- Target: Create JAR file -->
+	<target name="jar" depends="compile">
+		<jar
+			destfile="antDist/${ant.project.name}.jar"
+			baseDir="antBuild">
+
+			<!-- Add plugin metadata -->
+			<fileset dir="xml" />
+		</jar>
+	</target>
+
+	<!-- Target: Cleanup -->
+	<target name="clean">
+		<delete dir="antBuild" />
+		<delete dir="antDist" />
+	</target>
+
+</project>
