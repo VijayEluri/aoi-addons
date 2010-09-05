@@ -38,7 +38,7 @@ public class Adjustment
 		for (int i = 0; i < num; i++)
 		{
 			oi = sc.getObject(i);
-			if (oi != null && oi.name.equals("Light 1"))
+			if (oi != null && oi.getObject() instanceof DirectionalLight)
 			{
 				sc.removeObject(i, null);
 				

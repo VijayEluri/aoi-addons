@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 
-<extension name="DailyHelpers" version="0.5.1">
+<extension name="DailyHelpers" version="0.5.2">
 	<plugin class="troy.generic.DailyHelpersPlugin"/>
 	<plugin class="troy.generic.EditingPanel"/>
 	<author>TroY</author>
-	<date>2009-12-18</date>
+	<date>2010-09-05</date>
 	<description>
 Daily Helpers, automatic adjustments: 
 	- Maximize new main windows 
@@ -29,6 +29,12 @@ Use "Edit", "Plugin Preferences" to change this settings!
 	<category class="artofillusion.preferences.PreferencesEditor"/>
 
 	<history>
+		<log version="0.5.2" date="05 Sep 2010" author="TroY">
+			doKillLight(): Don't test for a specific name. Test for the
+			type of the object. This is OK since there's only one single
+			directional light in the initical scene.
+		</log>
+
 		<log version="0.5.1" date="18 Dec 2009" author="TroY">
 			Changed default settings: No options are activated.
 		</log>
