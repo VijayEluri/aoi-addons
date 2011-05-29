@@ -46,6 +46,11 @@ public class Sketch3DExporter
 			// Maintain a list of object names that we've seen. Do this
 			// to avoid duplicate names.
 			List<String> seenNames = new ArrayList<String>();
+			seenNames.add("allMeshes");
+
+			// List of objects that are added to the group
+			// "allMeshes".
+			List<String> allMeshes = new ArrayList<String>();
 
 			for (ObjectInfo oi : objs)
 			{
@@ -91,6 +96,8 @@ public class Sketch3DExporter
 
 					bw.write("}");
 					bw.newLine();
+
+					allMeshes.add(name);
 				}
 				else if (oi.getObject() instanceof NullObject)
 				{
@@ -142,6 +149,8 @@ public class Sketch3DExporter
 
 					bw.write("}");
 					bw.newLine();
+
+					allMeshes.add(name);
 				}
 				else if (oi.getObject() instanceof SceneCamera)
 				{
@@ -182,6 +191,17 @@ public class Sketch3DExporter
 
 				bw.newLine();
 			}
+
+			// Create the group "__all_meshes".
+			bw.write("def allMeshes {");
+			bw.newLine();
+			for (String s : allMeshes)
+			{
+				bw.write("\t{" + s + "}");
+				bw.newLine();
+			}
+			bw.write("}");
+			bw.newLine();
 
 			bw.close();
 		}
