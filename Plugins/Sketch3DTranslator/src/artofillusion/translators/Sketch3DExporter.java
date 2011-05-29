@@ -49,12 +49,13 @@ public class Sketch3DExporter
 
 			for (ObjectInfo oi : objs)
 			{
-				if (!(oi.getObject() instanceof FacetedMesh))
-				{
-					System.out.println(oi + " (" + oi.getObject() + ") is not "
-							+ "a faceted mesh. Not exporting.");
+				if (!(oi.getObject() instanceof FacetedMesh
+						|| oi.getObject() instanceof Curve
+						|| oi.getObject() instanceof NullObject))
 					continue;
-				}
+
+				if (!oi.isVisible())
+					continue;
 
 				// Figure out the name for this object.
 				String name = getName(seenNames, oi.getName());
@@ -62,29 +63,82 @@ public class Sketch3DExporter
 				// Write this object. Transform vertices into global
 				// coordinates.
 				// (TODO: Make this an option.)
-				bw.write("def " + name + " {");
-				bw.newLine();
+				bw.write("def " + name + " ");
 
-				Mat4 trans = oi.getCoords().fromLocal();
-				FacetedMesh fm = (FacetedMesh)oi.getObject();
-				for (int f = 0; f < fm.getFaceCount(); f++)
+				if (oi.getObject() instanceof FacetedMesh)
 				{
-					// Start a new polygon.
-					bw.write("\tpolygon ");
-					for (int v = 0; v < fm.getFaceVertexCount(f); v++)
+					bw.write("{");
+					bw.newLine();
+
+					Mat4 trans = oi.getCoords().fromLocal();
+					FacetedMesh fm = (FacetedMesh)oi.getObject();
+
+					for (int f = 0; f < fm.getFaceCount(); f++)
 					{
-						int fvi = fm.getFaceVertexIndex(f, v);
-						Vec3 vert = trans.times(fm.getVertices()[fvi].r);
+						// Start a new polygon.
+						bw.write("\tpolygon ");
+						for (int v = 0; v < fm.getFaceVertexCount(f); v++)
+						{
+							int fvi = fm.getFaceVertexIndex(f, v);
+							Vec3 vert = trans.times(fm.getVertices()[fvi].r);
+							bw.write("("
+									+ vert.x + ", "
+									+ vert.y + ", "
+									+ vert.z
+									+ ")");
+						}
+						bw.newLine();
+					}
+
+					bw.write("}");
+				}
+				else if (oi.getObject() instanceof NullObject)
+				{
+					Vec3 vert = oi.getCoords().getOrigin();
+					bw.write("("
+							+ vert.x + ", "
+							+ vert.y + ", "
+							+ vert.z
+							+ ")");
+				}
+				else if (oi.getObject() instanceof Curve)
+				{
+					bw.write("{");
+					bw.newLine();
+
+					Mat4 trans = oi.getCoords().fromLocal();
+					Curve c = (Curve)oi.getObject();
+					int max;
+					if (c.isClosed())
+						max = c.getVertices().length;
+					else
+						max = c.getVertices().length - 1;
+
+					for (int i = 0; i < max; i++)
+					{
+						int now = i;
+						bw.write("\tline ");
+						Vec3 vert = trans.times(c.getVertices()[now].r);
 						bw.write("("
 								+ vert.x + ", "
 								+ vert.y + ", "
 								+ vert.z
 								+ ")");
+
+						now = (i + 1) % c.getVertices().length;
+						vert = trans.times(c.getVertices()[now].r);
+						bw.write("("
+								+ vert.x + ", "
+								+ vert.y + ", "
+								+ vert.z
+								+ ")");
+
+						bw.newLine();
 					}
-					bw.newLine();
+
+					bw.write("}");
 				}
 
-				bw.write("}");
 				bw.newLine();
 				bw.newLine();
 			}
