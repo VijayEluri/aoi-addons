@@ -47,8 +47,8 @@ public class Sketch3DTranslator implements Translator
 	{
 		// Export whole scene or just selected objects?
 		BComboBox exportChoice = new BComboBox(new String [] {
-				Translate.text("selectedObjectsOnly"),
-				Translate.text("exportWholeScene")
+				Translate.text("exportWholeScene"),
+				Translate.text("selectedObjectsOnly")
 		});
 		ComponentsDialog dlg = new ComponentsDialog(parent,
 				Translate.text("sketch3dtranslator:exportToSketch3D"),
@@ -77,7 +77,7 @@ public class Sketch3DTranslator implements Translator
 			return;
 		}
 		LayoutWindow layout = (LayoutWindow)parent;
-		if (exportChoice.getSelectedIndex() == 1)
+		if (exportChoice.getSelectedIndex() == 0)
 			Sketch3DExporter.exportObject(theScene.getAllObjects(), f);
 		else
 			Sketch3DExporter.exportObject(layout.getSelectedObjects(), f);
