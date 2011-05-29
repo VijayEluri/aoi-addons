@@ -51,6 +51,7 @@ public class Sketch3DExporter
 			{
 				if (!(oi.getObject() instanceof FacetedMesh
 						|| oi.getObject() instanceof Curve
+						|| oi.getObject() instanceof SceneCamera
 						|| oi.getObject() instanceof NullObject))
 					continue;
 
@@ -60,14 +61,12 @@ public class Sketch3DExporter
 				// Figure out the name for this object.
 				String name = getName(seenNames, oi.getName());
 
-				// Write this object. Transform vertices into global
-				// coordinates.
-				// (TODO: Make this an option.)
-				bw.write("def " + name + " ");
-
+				// Write this object.
+				// TODO: All points are transformed into global space,
+				// make this an option.
 				if (oi.getObject() instanceof FacetedMesh)
 				{
-					bw.write("{");
+					bw.write("def " + name + " {");
 					bw.newLine();
 
 					Mat4 trans = oi.getCoords().fromLocal();
@@ -91,19 +90,24 @@ public class Sketch3DExporter
 					}
 
 					bw.write("}");
+					bw.newLine();
 				}
 				else if (oi.getObject() instanceof NullObject)
 				{
+					bw.write("def " + name + " ");
+
 					Vec3 vert = oi.getCoords().getOrigin();
 					bw.write("("
 							+ vert.x + ", "
 							+ vert.y + ", "
 							+ vert.z
 							+ ")");
+
+					bw.newLine();
 				}
 				else if (oi.getObject() instanceof Curve)
 				{
-					bw.write("{");
+					bw.write("def " + name + " {");
 					bw.newLine();
 
 					Mat4 trans = oi.getCoords().fromLocal();
@@ -137,9 +141,45 @@ public class Sketch3DExporter
 					}
 
 					bw.write("}");
+					bw.newLine();
+				}
+				else if (oi.getObject() instanceof SceneCamera)
+				{
+					bw.write("def " + name + " ");
+
+					// Get eye position, up direction and view
+					// direction.
+					bw.write("view(");
+					Vec3 eye = oi.getCoords().getOrigin();
+					Vec3 up = oi.getCoords().getUpDirection();
+					Vec3 z = oi.getCoords().getZDirection();
+
+					bw.write("("
+							+ eye.x + ", "
+							+ eye.y + ", "
+							+ eye.z
+							+ ")");
+
+					bw.write(", ");
+
+					bw.write("["
+							+ z.x + ", "
+							+ z.y + ", "
+							+ z.z
+							+ "]");
+
+					bw.write(", ");
+
+					bw.write("["
+							+ up.x + ", "
+							+ up.y + ", "
+							+ up.z
+							+ "]");
+
+					bw.write(")");
+					bw.newLine();
 				}
 
-				bw.newLine();
 				bw.newLine();
 			}
 
