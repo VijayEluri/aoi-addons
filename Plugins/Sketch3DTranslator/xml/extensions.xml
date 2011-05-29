@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<extension name="Sketch3DTranslator" version="0.1">
+	<plugin class="artofillusion.translators.Sketch3DTranslator"/>
+	<resource type="TranslateBundle" id="sketch3dtranslator"
+		name="sketch3dtranslator"/>
+	<author>TroY</author>
+	<date>2011-05-29</date>
+	<description>
+This plugin can export (faceted) meshes into definitions suitable for Sketch 3D. 
+
+For more informations about that program and its purpose, see: 
+
+http://www.frontiernet.net/~eugene.ressler/ 
+http://www.fauskes.net/nb/introduction-to-sketch/
+	</description>
+
+	<filter experimental="mark" />
+
+	<history>
+		<log version="0.1" date="29 May 2011" author="TroY">
+			Initial release.
+		</log>
+	</history>
+	<comments>
+	</comments>
+</extension>
