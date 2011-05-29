@@ -11,13 +11,22 @@ little pointless to me.
 Building
 --------
 
+You need to make all involved libraries available in the "jars"
+directory. On sophisticated operating systems, you can simply use
+symbolic links:
+
+	jars
+	├── ArtOfIllusion.jar -> /your/aoi/directory/ArtOfIllusion.jar
+	├── lib -> /your/aoi/directory/lib/
+	└── PreferencesPlugin.jar -> /your/aoi/directory/Plugins/PreferencesPlugin.jar
+
+Starting from version 2.9ea1, upstream AoI no longer provides additional
+libraries in the main "ArtOfIllusion.jar". That's why you need to create
+a link to the "lib" subdirectory, too.
+
 Just change to the plugin you wish to build and issue:
 
 	$ ant
-
-Be aware, though, that you'll need to copy the files "ArtOfIllusion.jar"
-and "PreferencesPlugin.jar" from your current AoI installation into the
-"jars" subdirectory. They can be symbolic links, of course.
 
 Cleaning up one plugin:
 

@@ -1,5 +1,5 @@
 *.swp
-jars/*.jar
+jars
 archives/Plugins/*
 archives/Scripts/*
 archives/*.tgz
